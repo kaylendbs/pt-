@@ -2167,7 +2167,7 @@ HTML_BASE_FOOT = """
     const sheet = document.querySelector('.sheet');
     if (!sheet || document.getElementById('floating-editor-toolbar')) return;
 
-    let editing = false;
+    let editing = true;
     sheet.setAttribute('spellcheck', 'false');
 
     const toolbar = document.createElement('div');
@@ -2217,16 +2217,16 @@ HTML_BASE_FOOT = """
       if (editing) {
         sheet.setAttribute('contenteditable', 'true');
         sheet.classList.add('live-edit-mode');
-        toggleBtn.textContent = '편집 종료';
-        status.textContent = '편집 모드';
-        note.textContent = '문서 안을 클릭해서 바로 수정하세요. 편집 종료 또는 앱에 반영을 누르면 다운로드 영역에도 반영됩니다.';
+        toggleBtn.textContent = '편집 잠금';
+        status.textContent = '직접 수정 중';
+        note.textContent = '계획서 본문을 바로 클릭해서 수정하세요. 수정 후 앱에 반영을 누르면 다운로드 HTML/PDF에도 그대로 반영됩니다.';
         sheet.focus();
       } else {
         sheet.removeAttribute('contenteditable');
         sheet.classList.remove('live-edit-mode');
-        toggleBtn.textContent = '편집 시작';
+        toggleBtn.textContent = '편집 재개';
         status.textContent = '읽기 모드';
-        note.textContent = '편집 시작을 누르면 문서 안에서 직접 수정할 수 있습니다.';
+        note.textContent = '현재 잠금 상태입니다. 다시 수정하려면 편집 재개를 누르세요.';
         syncToApp(false);
       }
     }
@@ -2304,6 +2304,7 @@ HTML_BASE_FOOT = """
 
     hideBridgeWidgets();
     setTimeout(hideBridgeWidgets, 600);
+    setEditing(true);
 
     toolbar.addEventListener('click', function (event) {
       const action = event.target && event.target.dataset ? event.target.dataset.action : '';
@@ -3158,58 +3159,58 @@ if st.session_state.get("report_html"):
         st.components.v1.html(st.session_state["report_html"], height=1750, scrolling=True)
 
         current_report = deepcopy(st.session_state["report_json"])
-        st.markdown("### 정밀 수정(선택)")
-        st.caption("창 안 직접 수정이 기본입니다. 아래 편집기는 구조화된 수정이 필요할 때만 사용하세요.")
-        with st.form("report_editor_form"):
-            e1, e2 = st.columns(2)
-            with e1:
-                section_1_text = st.text_area(
-                    "1. 회원 목표 및 제안 방향",
-                    value="\n".join(current_report.get("section_1", {}).get("items", [])),
-                    height=120,
-                )
-                section_2_text = st.text_area(
-                    "2. 트레이닝 장점",
-                    value="\n".join(current_report.get("section_2", {}).get("items", [])),
-                    height=120,
-                )
-                section_3_text = st.text_area(
-                    "3. 현재 상태 요약",
-                    value="\n".join(current_report.get("section_3", {}).get("paragraphs", [])),
-                    height=140,
-                )
-            with e2:
-                direction_lead_text = st.text_input(
-                    "로드맵 리드 문구",
-                    value=current_report.get("direction_section", {}).get("lead", ""),
-                )
-                direction_guide_text = st.text_input(
-                    "로드맵 보조 문구",
-                    value=current_report.get("direction_section", {}).get("guide", ""),
-                )
-                sales_talk_text = st.text_area(
-                    "상담 핵심 멘트",
-                    value="\n".join(current_report.get("sales_focus", {}).get("sales_talk", [])),
-                    height=120,
-                )
-                closing_text = st.text_area(
-                    "트레이너 코멘트",
-                    value=current_report.get("closing", {}).get("letter", ""),
-                    height=160,
+        with st.expander("정밀 수정(선택)", expanded=False):
+            st.caption("기본은 계획서 본문 직접 수정입니다. 아래는 구조화된 수정이 필요할 때만 사용하세요.")
+            with st.form("report_editor_form"):
+                e1, e2 = st.columns(2)
+                with e1:
+                    section_1_text = st.text_area(
+                        "1. 회원 목표 및 제안 방향",
+                        value="\n".join(current_report.get("section_1", {}).get("items", [])),
+                        height=120,
+                    )
+                    section_2_text = st.text_area(
+                        "2. 트레이닝 장점",
+                        value="\n".join(current_report.get("section_2", {}).get("items", [])),
+                        height=120,
+                    )
+                    section_3_text = st.text_area(
+                        "3. 현재 상태 요약",
+                        value="\n".join(current_report.get("section_3", {}).get("paragraphs", [])),
+                        height=140,
+                    )
+                with e2:
+                    direction_lead_text = st.text_input(
+                        "로드맵 리드 문구",
+                        value=current_report.get("direction_section", {}).get("lead", ""),
+                    )
+                    direction_guide_text = st.text_input(
+                        "로드맵 보조 문구",
+                        value=current_report.get("direction_section", {}).get("guide", ""),
+                    )
+                    sales_talk_text = st.text_area(
+                        "상담 핵심 멘트",
+                        value="\n".join(current_report.get("sales_focus", {}).get("sales_talk", [])),
+                        height=120,
+                    )
+                    closing_text = st.text_area(
+                        "트레이너 코멘트",
+                        value=current_report.get("closing", {}).get("letter", ""),
+                        height=160,
+                    )
+
+                st.markdown("#### 단계별 로드맵 표 수정")
+                direction_df = direction_rows_to_editor_df(current_report.get("direction_section", {}).get("rows", []))
+                edited_direction_df = st.data_editor(
+                    direction_df,
+                    use_container_width=True,
+                    hide_index=True,
+                    num_rows="fixed",
                 )
 
-            st.markdown("#### 단계별 로드맵 표 수정")
-            direction_df = direction_rows_to_editor_df(current_report.get("direction_section", {}).get("rows", []))
-            edited_direction_df = st.data_editor(
-                direction_df,
-                use_container_width=True,
-                hide_index=True,
-                num_rows="fixed",
-            )
-
-            b1, b2 = st.columns(2)
-            apply_edits = b1.form_submit_button("수정 반영", use_container_width=True)
-            restore_original = b2.form_submit_button("초기 생성본 복원", use_container_width=True)
+                b1, b2 = st.columns(2)
+                apply_edits = b1.form_submit_button("수정 반영", use_container_width=True)
+                restore_original = b2.form_submit_button("초기 생성본 복원", use_container_width=True)
 
         if apply_edits:
             updated_report = deepcopy(current_report)
