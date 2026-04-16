@@ -1554,7 +1554,7 @@ def build_sales_focus_block(member: Dict[str, Any], template_type: str) -> Dict[
     )
 
     return {
-        "title": "4. 문제 인식 & PT 필요성",
+        "title": "4. 문제 인식 & 관리 필요성",
         "problem_name": issue["title"],
         "problem_summary": f"현재 상담의 핵심 이슈는 '{issue['title']}'입니다. 비교 설명이 먼저 들어가야 회원이 빠르게 납득합니다.",
         "compare_title": issue["compare_title"],
@@ -2823,7 +2823,7 @@ TEMPLATE_A = Template(
         <ul class="sales-list">{% for item in sales_focus.risks %}<li>{{ item }}</li>{% endfor %}</ul>
       </div>
       <div class="sales-box">
-        <div class="sales-box-title">왜 PT가 필요한가</div>
+        <div class="sales-box-title">왜 관리가 필요한가</div>
         <ul class="sales-list">{% for item in sales_focus.pt_need %}<li>{{ item }}</li>{% endfor %}</ul>
       </div>
     </div>
@@ -2951,7 +2951,7 @@ TEMPLATE_B = Template(
         <ul class="sales-list">{% for item in sales_focus.risks %}<li>{{ item }}</li>{% endfor %}</ul>
       </div>
       <div class="sales-box">
-        <div class="sales-box-title">왜 PT가 필요한가</div>
+        <div class="sales-box-title">왜 관리가 필요한가</div>
         <ul class="sales-list">{% for item in sales_focus.pt_need %}<li>{{ item }}</li>{% endfor %}</ul>
       </div>
     </div>
@@ -3107,7 +3107,7 @@ TEMPLATE_C = Template(
         <ul class="sales-list">{% for item in sales_focus.risks %}<li>{{ item }}</li>{% endfor %}</ul>
       </div>
       <div class="sales-box">
-        <div class="sales-box-title">왜 PT가 필요한가</div>
+        <div class="sales-box-title">왜 관리가 필요한가</div>
         <ul class="sales-list">{% for item in sales_focus.pt_need %}<li>{{ item }}</li>{% endfor %}</ul>
       </div>
     </div>
@@ -3803,6 +3803,7 @@ if st.session_state.get("report_html"):
         with st.expander("정밀 수정(선택)", expanded=False):
             st.caption("기본은 계획서 본문 직접 수정입니다. 아래는 구조화된 수정이 필요할 때만 사용하세요.")
             with st.form("report_editor_form"):
+                sales_focus_data = current_report.get("sales_focus", {})
                 e1, e2 = st.columns(2)
                 with e1:
                     section_1_text = st.text_area(
@@ -3820,6 +3821,31 @@ if st.session_state.get("report_html"):
                         value="\n".join(current_report.get("section_3", {}).get("paragraphs", [])),
                         height=140,
                     )
+                    sales_focus_title_text = st.text_input(
+                        "4. 문제 인식 섹션 제목",
+                        value=sales_focus_data.get("title", ""),
+                    )
+                    sales_focus_problem_name_text = st.text_input(
+                        "핵심 이슈명",
+                        value=sales_focus_data.get("problem_name", ""),
+                    )
+                    sales_focus_problem_summary_text = st.text_area(
+                        "문제 요약 문장",
+                        value=sales_focus_data.get("problem_summary", ""),
+                        height=90,
+                    )
+                    sales_focus_compare_title_text = st.text_input(
+                        "비교 제목",
+                        value=sales_focus_data.get("compare_title", ""),
+                    )
+                    sales_focus_normal_label_text = st.text_input(
+                        "왼쪽 비교 라벨",
+                        value=sales_focus_data.get("normal_label", ""),
+                    )
+                    sales_focus_problem_label_text = st.text_input(
+                        "오른쪽 비교 라벨",
+                        value=sales_focus_data.get("problem_label", ""),
+                    )
                 with e2:
                     direction_lead_text = st.text_input(
                         "로드맵 리드 문구",
@@ -3831,7 +3857,7 @@ if st.session_state.get("report_html"):
                     )
                     sales_talk_text = st.text_area(
                         "상담 핵심 멘트",
-                        value="\n".join(current_report.get("sales_focus", {}).get("sales_talk", [])),
+                        value="\n".join(sales_focus_data.get("sales_talk", [])),
                         height=120,
                     )
                     closing_text = st.text_area(
@@ -3839,6 +3865,41 @@ if st.session_state.get("report_html"):
                         value=current_report.get("closing", {}).get("letter", ""),
                         height=160,
                     )
+                    coach_takeaway_text = st.text_area(
+                        "상담 요약 코멘트",
+                        value=sales_focus_data.get("coach_takeaway", ""),
+                        height=100,
+                    )
+
+                st.markdown("#### 문제 인식 & 관리 필요성 수정")
+                sf1, sf2 = st.columns(2)
+                with sf1:
+                    sales_focus_normal_points_text = st.text_area(
+                        "왼쪽 비교 포인트",
+                        value="\n".join(sales_focus_data.get("normal_points", [])),
+                        height=150,
+                    )
+                    sales_focus_causes_text = st.text_area(
+                        "문제 원인",
+                        value="\n".join(sales_focus_data.get("causes", [])),
+                        height=140,
+                    )
+                with sf2:
+                    sales_focus_problem_points_text = st.text_area(
+                        "오른쪽 비교 포인트",
+                        value="\n".join(sales_focus_data.get("problem_points", [])),
+                        height=150,
+                    )
+                    sales_focus_risks_text = st.text_area(
+                        "방치 시 위험",
+                        value="\n".join(sales_focus_data.get("risks", [])),
+                        height=140,
+                    )
+                sales_focus_need_text = st.text_area(
+                    "왜 관리가 필요한가",
+                    value="\n".join(sales_focus_data.get("pt_need", [])),
+                    height=140,
+                )
 
                 st.markdown("#### 단계별 로드맵 표 수정")
                 direction_df = direction_rows_to_editor_df(current_report.get("direction_section", {}).get("rows", []))
@@ -3858,7 +3919,23 @@ if st.session_state.get("report_html"):
             updated_report.setdefault("section_1", {})["items"] = split_lines(section_1_text) or current_report.get("section_1", {}).get("items", [])
             updated_report.setdefault("section_2", {})["items"] = split_lines(section_2_text) or current_report.get("section_2", {}).get("items", [])
             updated_report.setdefault("section_3", {})["paragraphs"] = split_lines(section_3_text) or current_report.get("section_3", {}).get("paragraphs", [])
-            updated_report.setdefault("sales_focus", {})["sales_talk"] = split_lines(sales_talk_text) or current_report.get("sales_focus", {}).get("sales_talk", [])
+
+            sales_focus_updated = updated_report.setdefault("sales_focus", {})
+            current_sales_focus = current_report.get("sales_focus", {})
+            sales_focus_updated["title"] = safe_text(sales_focus_title_text) or current_sales_focus.get("title", "")
+            sales_focus_updated["problem_name"] = safe_text(sales_focus_problem_name_text) or current_sales_focus.get("problem_name", "")
+            sales_focus_updated["problem_summary"] = tighten_coaching_text(sales_focus_problem_summary_text) or current_sales_focus.get("problem_summary", "")
+            sales_focus_updated["compare_title"] = tighten_coaching_text(sales_focus_compare_title_text) or current_sales_focus.get("compare_title", "")
+            sales_focus_updated["normal_label"] = safe_text(sales_focus_normal_label_text) or current_sales_focus.get("normal_label", "")
+            sales_focus_updated["problem_label"] = safe_text(sales_focus_problem_label_text) or current_sales_focus.get("problem_label", "")
+            sales_focus_updated["normal_points"] = split_lines(sales_focus_normal_points_text) or current_sales_focus.get("normal_points", [])
+            sales_focus_updated["problem_points"] = split_lines(sales_focus_problem_points_text) or current_sales_focus.get("problem_points", [])
+            sales_focus_updated["causes"] = split_lines(sales_focus_causes_text) or current_sales_focus.get("causes", [])
+            sales_focus_updated["risks"] = split_lines(sales_focus_risks_text) or current_sales_focus.get("risks", [])
+            sales_focus_updated["pt_need"] = split_lines(sales_focus_need_text) or current_sales_focus.get("pt_need", [])
+            sales_focus_updated["sales_talk"] = split_lines(sales_talk_text) or current_sales_focus.get("sales_talk", [])
+            sales_focus_updated["coach_takeaway"] = tighten_coaching_text(coach_takeaway_text) or current_sales_focus.get("coach_takeaway", "")
+
             updated_report.setdefault("closing", {})["letter"] = tighten_coaching_text(closing_text) or current_report.get("closing", {}).get("letter", "")
             updated_report.setdefault("direction_section", {})["lead"] = tighten_coaching_text(direction_lead_text) or current_report.get("direction_section", {}).get("lead", "")
             updated_report.setdefault("direction_section", {})["guide"] = tighten_coaching_text(direction_guide_text) or current_report.get("direction_section", {}).get("guide", "")
