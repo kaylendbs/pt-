@@ -7,6 +7,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 from pathlib import Path
 
+import pandas as pd
 import streamlit as st
 try:
     import tomllib
@@ -1258,32 +1259,32 @@ def build_sales_focus_block(member: Dict[str, Any], template_type: str) -> Dict[
 
     if issue["id"] == "forward_head":
         sales_talk = [
-            f"{member_name} 회원님은 단순히 목이 뻐근한 수준이 아니라, 머리가 앞으로 빠지는 패턴 때문에 목·어깨가 계속 과로하는 상태에 가깝습니다.",
-            "이 경우는 스트레칭 한두 번보다 경추 정렬 인지, 흉추 가동성, 견갑 움직임, 코어 안정성을 같이 잡아야 실제 변화가 납니다.",
-            f"그래서 {session_plan}는 단순 등록 권유가 아니라, 무너진 패턴을 다시 학습시키기 위한 최소한의 교정·적응 기간으로 보는 게 맞습니다.",
+            f"{member_name} 회원님은 목 통증보다 경추-흉추 정렬 재교육이 우선입니다.",
+            "스트레칭만으로는 부족하고 견갑 움직임, 흉추 가동성, 코어 안정성이 같이 잡혀야 합니다.",
+            f"{session_plan}는 불편 완화와 자세 교정을 함께 보기 위한 현실적인 기간입니다.",
         ]
     elif issue["id"] == "diet":
         sales_talk = [
-            f"{member_name} 회원님은 운동 의지보다 생활 패턴 관리가 결과를 더 크게 좌우하는 타입입니다.",
-            "이 경우는 PT 수업 자체보다 수업 사이 식습관·활동량·주말 패턴 점검이 같이 들어가야 감량이 이어집니다.",
-            f"즉 {session_plan}는 운동 횟수만 사는 게 아니라, 실패 패턴을 끊고 유지 가능한 루틴을 만드는 관리 기간이라고 보시면 됩니다.",
+            f"{member_name} 회원님은 운동량보다 생활 리듬 관리가 결과를 더 크게 좌우합니다.",
+            "식사, 활동량, 수면이 같이 정리돼야 감량이 유지됩니다.",
+            f"{session_plan}는 체중만 빼는 기간이 아니라 감량 패턴을 만드는 기간입니다.",
         ]
     else:
         sales_talk = [
-            f"{member_name} 회원님은 현재 {issue['title']} 이슈를 먼저 이해하고 시작해야 PT 효과를 빠르게 체감할 수 있습니다.",
-            "문제 부위를 단순히 쉬게 하는 것이 아니라, 왜 그 패턴이 생겼는지 원인부터 정리해줘야 재발을 줄일 수 있습니다.",
-            f"그래서 {session_plan}는 단순 운동 수업이 아니라, 자세 교정·패턴 재교육·루틴 정착까지 포함한 설계 기간입니다.",
+            f"{member_name} 회원님은 현재 '{issue['title']}' 정리가 우선입니다.",
+            "원인 패턴을 먼저 잡아야 운동 효과와 체감 변화가 빨라집니다.",
+            f"{session_plan}는 자세 교정과 루틴 정착을 함께 만드는 기간입니다.",
         ]
 
     coach_takeaway = (
-        f"상담 시에는 '{issue['problem_label']}'을 불안만 주는 방식으로 말하기보다, 현재 상태를 이해시키고 PT를 통해 어떻게 바뀌는지 연결하는 방식이 설득력이 높습니다. "
-        f"{session_count}회 기준으로 초기 인지 → 중기 교정 → 후기 정착 흐름을 설명하면 등록 전환율이 좋아집니다."
+        f"상담 시 '{issue['problem_label']}'을 과장하지 말고 원인, 수정 방향, 예상 기간 순서로 설명하면 설득력이 높습니다. "
+        f"{session_count}회 기준으로 초기 적응, 중기 개선, 후기 정착 흐름을 짧게 제시하세요."
     )
 
     return {
         "title": "4. 문제 인식 & PT 필요성",
         "problem_name": issue["title"],
-        "problem_summary": f"현재 상담 포인트는 '{issue['title']}'이며, 회원님이 스스로 문제를 이해하도록 비교 설명이 먼저 들어가야 합니다.",
+        "problem_summary": f"현재 상담의 핵심 이슈는 '{issue['title']}'입니다. 비교 설명이 먼저 들어가야 회원이 빠르게 납득합니다.",
         "compare_title": issue["compare_title"],
         "normal_label": issue["normal_label"],
         "problem_label": issue["problem_label"],
@@ -1385,29 +1386,29 @@ def build_closing_letter(member: Dict[str, Any], sales_focus: Dict[str, Any]) ->
 
     if goal_focus in ["다이어트", "체지방감량"]:
         return (
-            f"{member_name} 회원님, 현재 상태를 기준으로 보면 가장 중요한 포인트는 단순히 운동을 더 많이 하는 것이 아니라, 체지방이 잘 빠질 수 있는 생활 패턴과 운동 흐름을 함께 만드는 것입니다.\n"
-            "지금은 의지만으로 버티는 다이어트보다, 식사 리듬·활동량·운동 강도·회복 패턴을 회원님 몸 상태에 맞게 정리하는 것이 훨씬 중요합니다.\n"
-            "앞으로는 초반에 감량을 방해하는 생활 습관을 바로잡고, 중반에는 체력과 운동 수행 능력을 끌어올리며, 후반에는 혼자서도 유지 가능한 루틴까지 만드는 방향으로 가면 더 안정적이고 만족도 높은 변화를 기대할 수 있습니다."
+            f"{member_name} 회원님은 운동량보다 생활 리듬 정리가 우선입니다.\n"
+            "초반에는 식사 간격, 활동량, 수면을 안정시키고 중반부터 근력과 유산소 효율을 올리는 흐름이 적합합니다.\n"
+            "이번 과정의 핵심은 단기 감량보다 유지 가능한 감량 패턴을 만드는 것입니다."
         )
 
     if goal_focus in ["체형교정", "통증완화"]:
         return (
-            f"{member_name} 회원님, 현재 상태를 기준으로 보면 가장 중요한 포인트는 단순히 운동을 시작하는 것이 아니라, 몸의 정렬과 움직임 패턴을 먼저 바로잡는 것입니다.\n"
-            "지금 단계에서는 무작정 강도를 올리는 것보다, 불편함이 반복되는 원인과 보상 패턴을 정확히 이해하고 회원님 몸에 맞는 순서로 교정해 나가는 것이 훨씬 중요합니다.\n"
-            "앞으로는 초반에 자세 인지와 기초 안정성을 만들고, 중반에는 움직임의 완성도와 근력 연결을 높이며, 후반에는 일상과 운동에서 좋은 자세가 자연스럽게 유지되도록 만드는 방향으로 가면 훨씬 깔끔하고 확실한 변화를 기대할 수 있습니다."
+            f"{member_name} 회원님은 강도보다 정렬 회복이 우선입니다.\n"
+            "초반에는 자세 인지와 안정성, 중반에는 움직임 완성도와 근력 연결을 잡아야 합니다.\n"
+            "이번 과정의 핵심은 통증을 피하는 운동이 아니라 편한 움직임을 다시 만드는 것입니다."
         )
 
     if goal_focus in ["근력향상", "근력증가", "근육증가"]:
         return (
-            f"{member_name} 회원님, 현재 상태를 기준으로 보면 가장 중요한 포인트는 단순히 무게를 빨리 올리는 것이 아니라, 정확한 움직임과 힘 전달 방식을 먼저 만드는 것입니다.\n"
-            "지금은 중량 욕심보다 기본 패턴, 코어 안정성, 자극 인지를 먼저 잡아야 앞으로 근력이 올라갈 때도 몸이 훨씬 안정적이고 효율적으로 반응할 수 있습니다.\n"
-            "앞으로는 초반에 기본 자세와 힘 쓰는 감각을 만들고, 중반에는 수행 능력과 운동 완성도를 높이며, 후반에는 혼자서도 안정적으로 중량과 강도를 끌어올릴 수 있는 기반까지 만드는 방향으로 가면 더 분명하고 만족도 높은 성과를 기대할 수 있습니다."
+            f"{member_name} 회원님은 중량보다 기본 패턴 확보가 먼저입니다.\n"
+            "초반에는 자세와 힘 전달을 정리하고, 중반부터 수행 능력과 중량을 단계적으로 올려야 합니다.\n"
+            "이번 과정의 핵심은 무게를 버티는 몸이 아니라 효율적으로 힘을 쓰는 몸을 만드는 것입니다."
         )
 
     return (
-        f"{member_name} 회원님, 현재 상태를 기준으로 보면 핵심 상담 포인트는 '{sales_focus['problem_name']}'입니다.\n"
-        "지금은 무작정 운동량만 늘리는 것보다, 왜 원하는 변화가 더디게 나왔는지부터 정확히 짚고 몸에 맞는 방식으로 다시 시작하는 것이 더 중요합니다.\n"
-        "앞으로는 초반에 몸의 패턴과 생활 루틴을 정리하고, 중반에는 운동 수행 능력과 체력 흐름을 끌어올리며, 후반에는 혼자서도 유지 가능한 습관까지 만드는 방향으로 가면 더 안정적이고 만족도 높은 변화를 기대할 수 있습니다."
+        f"{member_name} 회원님의 현재 핵심 이슈는 '{sales_focus['problem_name']}'입니다.\n"
+        "초반에는 패턴과 생활 루틴을 정리하고, 중반에는 수행 능력을 끌어올리는 접근이 적합합니다.\n"
+        "이번 과정의 핵심은 단기 자극보다 오래 유지되는 기준을 만드는 것입니다."
     )
 
 
@@ -1570,45 +1571,127 @@ def report_schema_example(template_type: str) -> Dict[str, Any]:
     return example
 
 
+def build_member_context_summary(member: Dict[str, Any]) -> str:
+    goal_focus = safe_text(member.get("goal_focus", ""))
+    session_plan = safe_text(member.get("session_plan", ""))
+    gender = safe_text(member.get("gender", ""))
+    age = int(member.get("age", 0) or 0)
+    pbf = float(member.get("pbf", 0) or 0)
+    strengths = ", ".join([safe_text(x) for x in (member.get("strengths") or [])[:2] if safe_text(x)])
+    weaknesses = ", ".join([safe_text(x) for x in (member.get("weaknesses") or [])[:3] if safe_text(x)])
+    notes = ", ".join([safe_text(x) for x in (member.get("special_notes") or [])[:3] if safe_text(x)])
+    scores = member.get("scores", {}) or {}
+    score_text = ", ".join([f"{k}:{safe_text(v)}" for k, v in scores.items() if safe_text(v)])
+    parts = [
+        f"대상: {gender} {age}세" if gender and age else "",
+        f"목표: {goal_focus}" if goal_focus else "",
+        f"기간: {session_plan}" if session_plan else "",
+        f"체지방률: {pbf:.1f}%" if pbf else "",
+        f"능력치: {score_text}" if score_text else "",
+        f"강점: {strengths}" if strengths else "",
+        f"보완 포인트: {weaknesses}" if weaknesses else "",
+        f"생활/통증 메모: {notes}" if notes else "",
+    ]
+    return " / ".join([part for part in parts if part])
+
+
+def coerce_direction_rows(ai_rows: Any, base_rows: List[Dict[str, str]]) -> List[Dict[str, str]]:
+    ai_list = ai_rows if isinstance(ai_rows, list) else []
+    ai_by_label = {}
+    for idx, row in enumerate(ai_list):
+        if not isinstance(row, dict):
+            continue
+        label = safe_text(row.get("label"))
+        if label:
+            ai_by_label[label] = row
+        else:
+            ai_by_label[f"__idx_{idx}"] = row
+
+    normalized: List[Dict[str, str]] = []
+    for idx, base_row in enumerate(base_rows):
+        source = ai_by_label.get(base_row["label"]) or ai_by_label.get(f"__idx_{idx}") or {}
+        normalized.append({
+            "label": base_row["label"],
+            "v1": safe_text(source.get("v1")) or base_row.get("v1", ""),
+            "v2": safe_text(source.get("v2")) or base_row.get("v2", ""),
+            "v3": safe_text(source.get("v3")) or base_row.get("v3", ""),
+        })
+    return normalized
+
+
+def tighten_coaching_text(text: str) -> str:
+    value = safe_text(text)
+    replacements = {
+        "가장 중요한 포인트는 단순히": "핵심은",
+        "가장 중요한 포인트는": "핵심은",
+        "훨씬 중요합니다": "중요합니다",
+        "기대할 수 있습니다": "기대됩니다",
+        "이라고 보시면 됩니다": "입니다",
+        "에 가깝습니다": "입니다",
+        "더 크게 좌우합니다": "좌우합니다",
+        "몸 상태에 맞게": "현재 상태에 맞게",
+    }
+    for old, new in replacements.items():
+        value = value.replace(old, new)
+    lines = [re.sub(r"[ \t]+", " ", line).strip() for line in value.splitlines()]
+    return "\n".join([line for line in lines if line]).strip()
+
+
+def tighten_report_text(payload: Any) -> Any:
+    if isinstance(payload, dict):
+        tightened = {}
+        for key, value in payload.items():
+            if key in {"image_data", "image_data_list", "image_items"}:
+                tightened[key] = value
+            else:
+                tightened[key] = tighten_report_text(value)
+        return tightened
+    if isinstance(payload, list):
+        return [tighten_report_text(item) for item in payload]
+    if isinstance(payload, str):
+        return tighten_coaching_text(payload)
+    return payload
+
+
 def build_prompt(member: Dict[str, Any], template_type: str) -> str:
-    # 현재 회원 기준의 base 예시를 넣어 모델이 generic 문구로 회귀하지 않도록 유도
     example = build_base_report(member, template_type)
+    member_context = build_member_context_summary(member)
     return f"""
-너는 한국어 PT 맞춤 운동계획서 JSON 생성 전문가다.
-반드시 JSON 객체만 출력하고, 설명문/마크다운/코드블록은 금지한다.
+너는 한국어 PT 상담 제안서 작성 전문가다.
+출력은 반드시 JSON 객체만 사용한다. 설명문, 코드블록, 마크다운은 금지한다.
 
 목표:
-- 샘플 HWP 공통 레이아웃을 따르는 웹 문서용 데이터 생성
-- template_type={template_type} 에 맞는 문체와 섹션 흐름 유지
-- 상단 4칸 능력치 표 + 하단 세로형 9개 항목 표는 반드시 유지
-- rows.label 은 다음 순서를 정확히 지켜라:
+- template_type={template_type} 형식의 PT 제안서 데이터를 만든다.
+- 상단 4칸 능력치 표와 하단 9개 로드맵 표는 반드시 유지한다.
+- rows.label 순서는 다음과 같아야 한다:
   {ROW_LABELS}
 
-템플릿 해석:
-- A형: 체형교정/바디분석형, 자세·통증·정렬·가동성 중심
-- B형: 다이어트/스토리텔링형, 체지방 감량·식습관·실패 원인·생활패턴 중심
-- C형: 간결 코칭/압축형, 빠르게 보기 쉬운 요약 중심
+문체 규칙:
+- 짧고 단정하게 쓴다. 과한 친절체, 감성 문구, 가식적인 영업 멘트는 금지한다.
+- 모든 문장은 실제 트레이너가 상담 기록지에 적는 수준으로 작성한다.
+- 입력 정보에서 최소 1개 이상의 구체 요소를 각 섹션에 직접 반영한다.
+- 같은 구조라도 회원마다 표현과 해석이 분명히 달라야 한다.
+- '가장 중요한 포인트는', '훨씬', '기대할 수 있습니다' 같은 뜬 문구를 반복하지 않는다.
 
-작성 규칙:
-- section_1.items: 3~5개
-- section_2.items: 3~6개
-- section_3.paragraphs: 3~6개
+분량 규칙:
+- section_1.items: 3~4개, 항목당 한 문장, 짧고 단정하게
+- section_2.items: 3~5개, 강점만 적고 군더더기 금지
+- section_3.paragraphs: 2~4개, 문단당 1~2문장
 - sales_focus.normal_points / problem_points / causes / risks / pt_need: 각각 3개 이상
-- sales_focus.sales_talk: 2~4개
-- direction_section.rows: 정확히 {len(ROW_LABELS)}개
-- 각 셀은 짧고 전문적인 상담 문체로 작성하고, 회원이 바로 납득할 수 있는 표현을 사용할 것
-- 표 문구는 회원별 목표, 약점, 생활습관, 기간에 맞게 달라져야 하며 generic 반복 문구를 피할 것
-- 과장 금지, 실제 트레이너 설명처럼 자연스럽게
-- extra_table 은 template_type 에 맞게 유지하거나 보강 가능
-- sales_focus 는 반드시 유지하고, 회원이 결제를 납득할 수 있는 상담 논리로 채울 것
-- sales_focus.problem_name / compare_title / normal_label / problem_label 은 입력 회원의 목표와 상태에 맞게 유지할 것
-- goal_focus 가 '다이어트' 또는 '체지방감량' 이면 sales_focus.problem_name 을 절대 generic 문구로 쓰지 말고 체지방/생활습관/감량 패턴 중심으로 유지할 것
-- closing.letter 는 회원 설득용 코멘트 톤으로 작성하되 '등록 지속률', '전환율', '세일즈 성과' 같은 내부 사업 용어는 사용 금지
-- goal_focus 가 '다이어트' 또는 '체지방감량' 이면 closing.letter 는 생활패턴·감량 흐름 중심의 프리미엄 코멘트로 작성
-- goal_focus 가 '체형교정' 또는 '통증완화' 이면 closing.letter 는 정렬·움직임 패턴·교정 흐름 중심의 프리미엄 코멘트로 작성
-- goal_focus 가 '근력향상' 또는 '근력증가' 또는 '근육증가' 이면 closing.letter 는 기본 패턴·힘 전달·점진적 수행 향상 중심의 프리미엄 코멘트로 작성
-- direction_section.lead 와 direction_section.guide 에는 횟수/개월수 표기를 반복 노출하지 말 것
-- image_prompt 는 영어로 작성
+- sales_focus.sales_talk: 2~3개, 문장당 한 줄
+- direction_section.rows: 정확히 {len(ROW_LABELS)}개, 각 셀은 1문장
+- closing.letter: 3~4문장, 짧고 전문가 코멘트처럼 마무리
+
+내용 규칙:
+- template_type A는 자세·통증·정렬 중심, B는 감량·생활습관 중심, C는 압축 요약 중심으로 쓴다.
+- 표 문구는 목표, 약점, 생활습관, 기간에 맞게 달라져야 하며 generic 반복 문구를 피한다.
+- sales_focus.problem_name, compare_title, normal_label, problem_label은 현재 회원 이슈와 맞아야 한다.
+- closing.letter에는 내부 영업 용어를 넣지 않는다.
+- direction_section.lead와 guide에는 횟수 표기를 반복하지 않는다.
+- image_prompt는 영어로 작성한다.
+
+회원 요약:
+{member_context}
 
 입력값:
 {json.dumps(member, ensure_ascii=False, indent=2)}
@@ -1619,16 +1702,16 @@ def build_prompt(member: Dict[str, Any], template_type: str) -> str:
 
 
 SYSTEM_PROMPT = (
-    "너는 10년차 퍼스널트레이너의 전문지식을 가진 PT 세일즈 자료 작성 AI다. "
-    "반드시 JSON만 반환하고, 회원 상태 분석과 횟수 제안의 설득력을 함께 만들어라. "
-    "누락된 필드는 기본 구조를 유지한 채 자연스럽게 채운다."
+    "너는 PT 상담 제안서를 작성하는 수석 트레이너다. "
+    "문장은 짧고 전문적으로 쓴다. 입력 회원의 차이를 반드시 반영한다. "
+    "출력은 JSON 객체만 반환한다."
 )
 
 
 def generate_report_json(client: Optional[OpenAI], member: Dict[str, Any], template_type: str, model_name: str) -> Dict[str, Any]:
     base = build_base_report(member, template_type)
     if client is None:
-        return base
+        return tighten_report_text(base)
 
     try:
         response = client.chat.completions.create(
@@ -1638,28 +1721,21 @@ def generate_report_json(client: Optional[OpenAI], member: Dict[str, Any], templ
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": build_prompt(member, template_type)},
             ],
-            temperature=0.7,
+            temperature=0.85,
             max_tokens=4000,
         )
         content = response.choices[0].message.content
         ai_data = json.loads(content)
         merged = deep_merge(base, ai_data)
 
-        # 핵심 이슈 판정은 규칙 기반(base)을 우선 고정해 회원별 일관성을 보장
         base_sales_focus = base.get("sales_focus", {})
         merged_sales_focus = merged.setdefault("sales_focus", {})
         locked_sales_focus_keys = [
             "title",
             "problem_name",
-            "problem_summary",
             "compare_title",
             "normal_label",
             "problem_label",
-            "normal_points",
-            "problem_points",
-            "causes",
-            "risks",
-            "pt_need",
             "image_title",
             "image_caption",
         ]
@@ -1669,15 +1745,21 @@ def generate_report_json(client: Optional[OpenAI], member: Dict[str, Any], templ
 
         base_direction = base.get("direction_section", {})
         merged_direction = merged.setdefault("direction_section", {})
-        for key in ["title", "lead", "guide", "rows", "phase_cards", "phase_subtitles", "phase_headings"]:
+        for key in ["title", "phase_cards", "phase_subtitles", "phase_headings"]:
             if key in base_direction:
                 merged_direction[key] = base_direction[key]
+        merged_direction["rows"] = coerce_direction_rows(merged_direction.get("rows"), base_direction.get("rows", []))
+        if not safe_text(merged_direction.get("lead")):
+            merged_direction["lead"] = base_direction.get("lead", "")
+        if not safe_text(merged_direction.get("guide")):
+            merged_direction["guide"] = base_direction.get("guide", "")
 
         base_closing = base.get("closing", {})
         merged_closing = merged.setdefault("closing", {})
-        for key in ["title", "letter"]:
-            if key in base_closing:
-                merged_closing[key] = base_closing[key]
+        if "title" in base_closing:
+            merged_closing["title"] = base_closing["title"]
+        if not safe_text(merged_closing.get("letter")):
+            merged_closing["letter"] = base_closing.get("letter", "")
 
         merged["image_prompt"] = build_reference_image_prompt(member, template_type)
         if isinstance(merged.get("reference_block"), dict):
@@ -1691,9 +1773,10 @@ def generate_report_json(client: Optional[OpenAI], member: Dict[str, Any], templ
                 merged["reference_block"]["image_captions"] = []
             if not merged["reference_block"].get("image_items"):
                 merged["reference_block"]["image_items"] = []
-        return merged
+
+        return tighten_report_text(merged)
     except Exception:
-        return base
+        return tighten_report_text(base)
 
 
 def maybe_generate_image(client: Optional[OpenAI], enabled: bool, prompt: str):
@@ -2496,6 +2579,39 @@ def html_to_pdf_bytes(html: str) -> Optional[bytes]:
         return None
 
 
+def refresh_rendered_report(report: Dict[str, Any]) -> None:
+    html = render_html(report)
+    st.session_state["report_json"] = report
+    st.session_state["report_html"] = html
+    st.session_state["report_pdf"] = html_to_pdf_bytes(html)
+
+
+def direction_rows_to_editor_df(rows: List[Dict[str, str]]) -> pd.DataFrame:
+    return pd.DataFrame([
+        {
+            "구분": row.get("label", ""),
+            "1단계": row.get("v1", ""),
+            "2단계": row.get("v2", ""),
+            "3단계": row.get("v3", ""),
+        }
+        for row in rows
+    ])
+
+
+def direction_editor_df_to_rows(df: pd.DataFrame, fallback_rows: List[Dict[str, str]]) -> List[Dict[str, str]]:
+    records = df.to_dict("records") if hasattr(df, "to_dict") else []
+    output: List[Dict[str, str]] = []
+    for idx, row in enumerate(records):
+        fallback = fallback_rows[idx] if idx < len(fallback_rows) else {"label": "", "v1": "", "v2": "", "v3": ""}
+        output.append({
+            "label": safe_text(row.get("구분")) or fallback.get("label", ""),
+            "v1": safe_text(row.get("1단계")) or fallback.get("v1", ""),
+            "v2": safe_text(row.get("2단계")) or fallback.get("v2", ""),
+            "v3": safe_text(row.get("3단계")) or fallback.get("v3", ""),
+        })
+    return output or fallback_rows
+
+
 # ============================================================
 # 입력 UI
 # ============================================================
@@ -2551,11 +2667,11 @@ st.markdown(
     <div class="premium-hero">
       <div class="premium-kicker">PREMIUM PT SALES REPORT BUILDER</div>
       <h1>PT 세일즈 자료 생성기</h1>
-      <p>10년차 트레이너 상담 흐름을 반영해 회원 상태 분석, 등록 설득 포인트, 문제 인식 비교 이미지, 단계별 로드맵까지 한 번에 정리하는 프리미엄 PT 상담 리포트 빌더입니다.</p>
+      <p>회원 상태 분석, 설득 포인트, 단계별 로드맵을 한 번에 정리합니다.</p>
       <div class="premium-badges">
-        <span class="premium-badge">회원 맞춤 세일즈 문서</span>
-        <span class="premium-badge">비교형 참고 이미지 연동</span>
-        <span class="premium-badge">횟수별 로드맵 자동 반영</span>
+        <span class="premium-badge">회원 맞춤 분석</span>
+        <span class="premium-badge">즉시 수정 가능</span>
+        <span class="premium-badge">로드맵 자동 반영</span>
       </div>
     </div>
     """,
@@ -2693,7 +2809,7 @@ with btn1:
 with btn2:
     demo_clicked = st.button("🧪 데모 값으로 생성", use_container_width=True)
 with btn3:
-    st.info("A형=체형교정 상담형 / B형=감량 설득형 / C형=빠른 등록 제안형. PDF는 WeasyPrint 설치 시 활성화됩니다.")
+    st.info("A=체형교정 / B=감량 / C=요약형")
 
 current_run_generating = generate_clicked or demo_clicked
 
@@ -2770,12 +2886,7 @@ if generate_clicked:
         image_source = "placeholder"
 
     report["meta"]["template_type"] = selected_template
-    html = render_html(report)
-    pdf_bytes = html_to_pdf_bytes(html)
-
-    st.session_state["report_json"] = report
-    st.session_state["report_html"] = html
-    st.session_state["report_pdf"] = pdf_bytes
+    refresh_rendered_report(report)
     st.session_state["selected_template"] = selected_template
     st.session_state["member_name_saved"] = member["member_name"]
     st.session_state["image_status"] = image_status
@@ -2783,6 +2894,7 @@ if generate_clicked:
     st.session_state["reference_image_data"] = report.get("reference_block", {}).get("image_data")
     st.session_state["reference_image_data_list"] = report.get("reference_block", {}).get("image_data_list", [])
     st.session_state["reference_image_items"] = report.get("reference_block", {}).get("image_items", [])
+    st.session_state["report_json_original"] = deepcopy(report)
 
 
 # ============================================================
@@ -2792,7 +2904,11 @@ if st.session_state.get("report_html"):
     member_name_saved = st.session_state.get("member_name_saved", "회원")
     selected_template = st.session_state.get("selected_template", "A")
 
-    st.success(f"생성 완료: {selected_template}형 세일즈 템플릿으로 렌더링했습니다.")
+    editor_notice = st.session_state.pop("editor_notice", "")
+    if editor_notice:
+        st.success(editor_notice)
+    else:
+        st.success(f"{selected_template}형 리포트 생성 완료")
 
     tabs = st.tabs(["세일즈 자료 미리보기", "생성 JSON", "HTML 소스"])
 
@@ -2834,6 +2950,84 @@ if st.session_state.get("report_html"):
         elif ref_image:
             st.image(ref_image, caption="문서에 들어간 참고 이미지 확인", use_container_width=True)
         st.components.v1.html(st.session_state["report_html"], height=1650, scrolling=True)
+
+        current_report = deepcopy(st.session_state["report_json"])
+        st.markdown("### 문서 수정")
+        st.caption("미리보기 아래에서 바로 수정하고 다시 렌더링할 수 있습니다.")
+        with st.form("report_editor_form"):
+            e1, e2 = st.columns(2)
+            with e1:
+                section_1_text = st.text_area(
+                    "1. 회원 목표 및 제안 방향",
+                    value="\n".join(current_report.get("section_1", {}).get("items", [])),
+                    height=120,
+                )
+                section_2_text = st.text_area(
+                    "2. 트레이닝 장점",
+                    value="\n".join(current_report.get("section_2", {}).get("items", [])),
+                    height=120,
+                )
+                section_3_text = st.text_area(
+                    "3. 현재 상태 요약",
+                    value="\n".join(current_report.get("section_3", {}).get("paragraphs", [])),
+                    height=140,
+                )
+            with e2:
+                direction_lead_text = st.text_input(
+                    "로드맵 리드 문구",
+                    value=current_report.get("direction_section", {}).get("lead", ""),
+                )
+                direction_guide_text = st.text_input(
+                    "로드맵 보조 문구",
+                    value=current_report.get("direction_section", {}).get("guide", ""),
+                )
+                sales_talk_text = st.text_area(
+                    "상담 핵심 멘트",
+                    value="\n".join(current_report.get("sales_focus", {}).get("sales_talk", [])),
+                    height=120,
+                )
+                closing_text = st.text_area(
+                    "트레이너 코멘트",
+                    value=current_report.get("closing", {}).get("letter", ""),
+                    height=160,
+                )
+
+            st.markdown("#### 단계별 로드맵 표 수정")
+            direction_df = direction_rows_to_editor_df(current_report.get("direction_section", {}).get("rows", []))
+            edited_direction_df = st.data_editor(
+                direction_df,
+                use_container_width=True,
+                hide_index=True,
+                num_rows="fixed",
+            )
+
+            b1, b2 = st.columns(2)
+            apply_edits = b1.form_submit_button("수정 반영", use_container_width=True)
+            restore_original = b2.form_submit_button("초기 생성본 복원", use_container_width=True)
+
+        if apply_edits:
+            updated_report = deepcopy(current_report)
+            updated_report.setdefault("section_1", {})["items"] = split_lines(section_1_text) or current_report.get("section_1", {}).get("items", [])
+            updated_report.setdefault("section_2", {})["items"] = split_lines(section_2_text) or current_report.get("section_2", {}).get("items", [])
+            updated_report.setdefault("section_3", {})["paragraphs"] = split_lines(section_3_text) or current_report.get("section_3", {}).get("paragraphs", [])
+            updated_report.setdefault("sales_focus", {})["sales_talk"] = split_lines(sales_talk_text) or current_report.get("sales_focus", {}).get("sales_talk", [])
+            updated_report.setdefault("closing", {})["letter"] = tighten_coaching_text(closing_text) or current_report.get("closing", {}).get("letter", "")
+            updated_report.setdefault("direction_section", {})["lead"] = tighten_coaching_text(direction_lead_text) or current_report.get("direction_section", {}).get("lead", "")
+            updated_report.setdefault("direction_section", {})["guide"] = tighten_coaching_text(direction_guide_text) or current_report.get("direction_section", {}).get("guide", "")
+            updated_report.setdefault("direction_section", {})["rows"] = direction_editor_df_to_rows(
+                edited_direction_df,
+                current_report.get("direction_section", {}).get("rows", []),
+            )
+            updated_report = tighten_report_text(updated_report)
+            refresh_rendered_report(updated_report)
+            st.session_state["editor_notice"] = "수정 내용을 반영했습니다."
+            st.rerun()
+
+        if restore_original:
+            original_report = deepcopy(st.session_state.get("report_json_original", current_report))
+            refresh_rendered_report(original_report)
+            st.session_state["editor_notice"] = "초기 생성본으로 복원했습니다."
+            st.rerun()
         d1, d2, d3 = st.columns(3)
         with d1:
             st.download_button(
@@ -2877,12 +3071,12 @@ else:
             """
             <div class="loading-card">
               <div class="loading-kicker">⏳ PT SALES REPORT GENERATING</div>
-              <div class="loading-title">회원 맞춤 상담 리포트를 정리하고 있어요</div>
-              <div class="loading-desc">입력한 목표, 체성분, 장단점, 생활 메모를 바탕으로 <b>상담형 문구</b>, <b>문제 인식 포인트</b>, <b>횟수별 운동 로드맵</b>까지 한 번에 구성하는 중입니다.</div>
+              <div class="loading-title">회원 맞춤 리포트 생성 중</div>
+              <div class="loading-desc">입력 정보를 바탕으로 핵심 분석과 로드맵을 정리하고 있습니다.</div>
               <div class="loading-steps">
-                <div class="loading-step"><strong>1. 상태 해석</strong><span>회원님의 목표와 현재 패턴을 분석합니다.</span></div>
-                <div class="loading-step"><strong>2. 세일즈 문구 구성</strong><span>상담 현장에서 바로 쓸 수 있게 설득 흐름을 정리합니다.</span></div>
-                <div class="loading-step"><strong>3. 리포트 렌더링</strong><span>프리미엄 PT 제안서 형태로 문서를 조합합니다.</span></div>
+                <div class="loading-step"><strong>1. 상태 분석</strong><span>목표와 현재 패턴을 정리합니다.</span></div>
+                <div class="loading-step"><strong>2. 문구 생성</strong><span>상담용 핵심 문장을 만듭니다.</span></div>
+                <div class="loading-step"><strong>3. 문서 렌더링</strong><span>최종 제안서로 조합합니다.</span></div>
               </div>
             </div>
             """,
@@ -2894,14 +3088,15 @@ else:
 <div style="background:#ffffff;border:1px solid #d9e5f0;border-radius:22px;padding:24px 26px;box-shadow:0 10px 26px rgba(16,42,67,.06);">
 
 ### 사용 방법
-1. 좌측에서 템플릿을 **자동 추천 / A형 / B형 / C형** 중 선택합니다.  
-2. 회원 정보, 체성분, 능력치, 강점/단점 선택지, 기타 메모를 입력합니다. 필요하면 참고 이미지를 직접 업로드하거나 자동생성을 켭니다.  
-3. **세일즈 자료 생성** 버튼을 누르면 AI가 10년차 트레이너 관점의 상담형 문구를 만들고, 고정 HTML 템플릿으로 렌더링합니다.  
-4. 자동 이미지 생성이 실패하면 화면 상단에 실패 사유를 보여주며, 직접 업로드 이미지는 자동생성보다 우선 적용됩니다.  
+1. 좌측에서 템플릿을 선택합니다.  
+2. 회원 정보와 트레이너 메모를 입력합니다.  
+3. **세일즈 자료 생성**을 누릅니다.  
+4. 생성 후 미리보기 아래에서 바로 수정할 수 있습니다.  
 5. 필요하면 HTML / PDF / JSON으로 다운로드합니다.  
 
-### 이 버전의 핵심 차이점
-- 장점/단점을 주관식 대신 **복수 선택 + 기타 입력** 구조로 바꿔 상담 속도를 높였습니다.  
+### 이 버전의 핵심
+- 회원 정보에 따라 문구 차이를 더 크게 반영합니다.  
+- 문장을 짧고 상담 기록지 톤에 맞게 정리합니다.  
 - 결과물은 단순 운동계획서가 아니라 **회원 상태 분석 + 횟수 제안 + 등록 설득 포인트**를 담는 PT 세일즈 자료입니다.  
 - 표는 **구분 / 1단계 / 2단계 / 3단계** 구조의 세로형 관리 표를 유지해 제안 근거를 명확히 보여줍니다.  
 - 레이아웃은 템플릿이 책임지고, AI는 세일즈 설득 문구를 채우는 방식이라 현장 상담에서 바로 활용하기 쉽습니다.  
