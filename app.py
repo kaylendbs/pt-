@@ -110,30 +110,43 @@ section.main {
 [data-testid="stSidebar"] textarea,
 [data-testid="stSidebar"] .stNumberInput input,
 [data-testid="stSidebar"] input {
-  background:rgba(8,24,39,.42) !important;
+  background:#ffffff !important;
   border:1px solid rgba(255,255,255,.22) !important;
-  color:#f8fbff !important;
+  color:#14314b !important;
   border-radius:14px !important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+  box-shadow:0 2px 10px rgba(7,19,31,.08);
 }
 [data-testid="stSidebar"] [data-baseweb="input"] *,
 [data-testid="stSidebar"] [data-baseweb="select"] > div *,
+[data-testid="stSidebar"] [data-baseweb="input"] input,
+[data-testid="stSidebar"] [data-baseweb="select"] input,
 [data-testid="stSidebar"] textarea,
 [data-testid="stSidebar"] input,
 [data-testid="stSidebar"] .stNumberInput input {
-  color:#f8fbff !important;
-  caret-color:#ffffff !important;
+  color:#14314b !important;
+  -webkit-text-fill-color:#14314b !important;
+  caret-color:#14314b !important;
 }
 [data-testid="stSidebar"] input::placeholder,
-[data-testid="stSidebar"] textarea::placeholder {
-  color:rgba(247,251,255,.78) !important;
+[data-testid="stSidebar"] textarea::placeholder,
+[data-testid="stSidebar"] [data-baseweb="input"] input::placeholder,
+[data-testid="stSidebar"] [data-baseweb="select"] input::placeholder {
+  color:#8a97a6 !important;
+  -webkit-text-fill-color:#8a97a6 !important;
   opacity:1 !important;
 }
 [data-testid="stSidebar"] .stMultiSelect [data-baseweb="tag"],
 [data-testid="stSidebar"] .stMultiSelect [data-baseweb="tag"] * {
   background:#eaf2fb !important;
   color:#14314b !important;
+  -webkit-text-fill-color:#14314b !important;
   border:1px solid #bfd3e6 !important;
+}
+[data-testid="stSidebar"] [data-baseweb="select"] > div,
+[data-testid="stSidebar"] [data-baseweb="select"] > div span,
+[data-testid="stSidebar"] [data-baseweb="select"] > div div {
+  color:#14314b !important;
+  -webkit-text-fill-color:#14314b !important;
 }
 [data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"],
 [data-testid="stSidebar"] section[data-testid="stFileUploaderDropzone"] {
