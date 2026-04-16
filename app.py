@@ -354,6 +354,25 @@ textarea,
   color:var(--ui-navy-strong) !important;
 }
 
+.stNumberInput button {
+  background:#2a3040 !important;
+  color:#ffffff !important;
+  border-color:#2a3040 !important;
+}
+.stNumberInput button:hover {
+  background:#1f2634 !important;
+  color:#ffffff !important;
+  border-color:#1f2634 !important;
+}
+.stNumberInput button svg,
+.stNumberInput button svg path,
+.stNumberInput button span {
+  fill:#ffffff !important;
+  color:#ffffff !important;
+  stroke:#ffffff !important;
+  opacity:1 !important;
+}
+
 .stTextInput input::placeholder,
 textarea::placeholder,
 input::placeholder {
