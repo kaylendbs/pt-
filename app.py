@@ -1413,37 +1413,37 @@ def detect_primary_sales_issue(member: Dict[str, Any]) -> Dict[str, Any]:
         },
         {
             "id": "diet",
-            "title": "체지방 관리 실패 패턴 / 생활습관 문제",
-            "compare_title": "감량이 되는 생활 패턴 vs 정체를 만드는 생활 패턴 비교",
-            "normal_label": "감량 친화 패턴",
-            "problem_label": "정체 유발 패턴",
+            "title": "체지방 감량 효율을 높이기 위한 생활 패턴 점검",
+            "compare_title": "감량에 도움이 되는 생활 패턴과 함께 조정하면 좋은 패턴 비교",
+            "normal_label": "감량에 도움이 되는 패턴",
+            "problem_label": "함께 조정하면 좋은 패턴",
             "normal_points": [
                 "식사 간격, 단백질 섭취, 수면, 활동량이 비교적 일정합니다.",
                 "PT 수업과 개인운동, 유산소가 연결되어 총 운동량이 확보됩니다.",
                 "주말 패턴이 크게 무너지지 않아 체지방 변화가 누적됩니다.",
             ],
             "problem_points": [
-                "야식·음주·폭식·수면 부족으로 주중 노력이 상쇄되기 쉽습니다.",
-                "운동은 하지만 식습관과 일상 활동량이 정리되지 않아 정체가 길어집니다.",
-                "단기 다이어트와 포기가 반복되며 자신감이 떨어질 수 있습니다.",
+                "야식·음주·불규칙한 수면이 반복되면 주중에 만든 흐름이 끊기기 쉽습니다.",
+                "운동은 하고 있어도 식사와 일상 활동량 기준이 일정하지 않으면 감량 속도가 더디게 느껴질 수 있습니다.",
+                "짧은 기간 무리한 다이어트를 반복하면 몸과 마음이 모두 지치기 쉽습니다.",
             ],
             "causes": [
-                "식단 기준 부재와 생활 리듬 불안정",
-                "주말 보상심리, 음주·야식 빈도, 활동량 부족",
-                "운동만 하면 된다는 생각으로 루틴 관리가 빠진 경우",
+                "식사와 생활 리듬 기준이 아직 일정하게 잡히지 않은 상태",
+                "주말 일정, 음주, 야식, 활동량 변화가 감량 흐름에 영향을 주는 경우",
+                "운동 외 시간의 루틴 관리까지 연결할 기준이 부족한 경우",
             ],
             "risks": [
-                "감량 정체가 길어져 포기 확률이 높아질 수 있습니다.",
-                "체중보다 체지방 비율이 더디게 변해 만족도가 떨어질 수 있습니다.",
-                "반복 다이어트로 기초 체력과 식습관 통제가 더 어려워질 수 있습니다.",
+                "변화가 더디게 느껴지면 동기와 자신감이 함께 떨어질 수 있습니다.",
+                "체중보다 체지방 비율 변화가 천천히 보여 답답함을 느낄 수 있습니다.",
+                "생활 패턴이 자주 흔들리면 감량 후 유지까지 어렵게 느껴질 수 있습니다.",
             ],
             "pt_need": [
-                "감량은 운동 한두 번보다 수업-식습관-활동량-주말 패턴 관리가 핵심입니다.",
-                "PT에서는 체크포인트를 만들어 실패 원인을 바로 수정할 수 있습니다.",
-                "지속 가능한 일반식 기준과 운동 루틴을 함께 설계해야 실제 변화가 납니다.",
+                "감량은 운동 시간뿐 아니라 식사, 활동량, 수면, 주말 루틴이 함께 안정될 때 더 편하게 이어질 수 있습니다.",
+                "수업에서는 현재 패턴을 함께 점검하고, 흐름이 흔들리는 지점을 빠르게 조정해드릴 수 있습니다.",
+                "무리한 제한보다 지속 가능한 식사 기준과 운동 루틴을 함께 만드는 것이 실제 변화에 도움이 됩니다.",
             ],
-            "image_title": "감량 성공 패턴 vs 정체 패턴 비교 이미지",
-            "image_caption": "감량이 되는 생활 패턴과 정체를 만드는 패턴을 비교하는 세일즈용 참고 이미지",
+            "image_title": "감량에 도움이 되는 생활 패턴 비교 이미지",
+            "image_caption": "감량에 도움이 되는 생활 패턴과 조정이 필요한 패턴을 비교하는 참고 이미지",
         },
     ]
 
@@ -1469,10 +1469,10 @@ def detect_primary_sales_issue(member: Dict[str, Any]) -> Dict[str, Any]:
 
     return {
         "id": "generic",
-        "title": "현재 체형/움직임 패턴 분석",
-        "compare_title": "효율적인 움직임 패턴 vs 보상 중심 움직임 패턴 비교",
-        "normal_label": "효율 패턴",
-        "problem_label": "보상 패턴",
+        "title": "현재 체형과 움직임 패턴 점검",
+        "compare_title": "움직임 효율을 높이는 패턴과 함께 조정하면 좋은 패턴 비교",
+        "normal_label": "유지하면 좋은 패턴",
+        "problem_label": "함께 조정하면 좋은 패턴",
         "normal_points": [
             "필요한 부위에 힘이 잘 들어가 운동 효율이 올라갑니다.",
             "통증과 불편감이 적고 운동을 지속하기가 수월합니다.",
@@ -1541,32 +1541,31 @@ def build_sales_focus_block(member: Dict[str, Any], template_type: str) -> Dict[
 
     if issue["id"] == "forward_head":
         sales_talk = [
-            f"{member_name} 회원님은 목 통증보다 경추-흉추 정렬 재교육이 우선입니다.",
-            "스트레칭만으로는 부족하고 견갑 움직임, 흉추 가동성, 코어 안정성이 같이 잡혀야 합니다.",
-            f"{session_plan}는 불편 완화와 자세 교정을 함께 보기 위한 현실적인 기간입니다.",
+            f"{member_name} 회원님은 목 주변의 불편함을 줄이면서 상체 정렬을 함께 편안하게 잡아가는 과정이 중요합니다.",
+            "스트레칭과 함께 견갑 움직임, 흉추 가동성, 코어 안정성이 연결되면 자세 변화가 더 자연스럽게 이어질 수 있습니다.",
+            f"{session_plan}는 불편 완화와 자세 습관 교정을 함께 도와드리기에 적절한 기간입니다.",
         ]
     elif issue["id"] == "diet":
         sales_talk = [
-            f"{member_name} 회원님은 운동량보다 생활 리듬 관리가 결과를 더 크게 좌우합니다.",
-            "식사, 활동량, 수면이 같이 정리돼야 감량이 유지됩니다.",
-            f"{session_plan}는 체중만 빼는 기간이 아니라 감량 패턴을 만드는 기간입니다.",
+            f"{member_name} 회원님은 운동량 자체보다 생활 리듬이 함께 안정될 때 체지방 감량 효율이 더 좋아질 수 있습니다.",
+            "식사, 활동량, 수면 패턴을 무리 없이 함께 정리하면 감량 흐름을 더 안정적으로 이어갈 수 있습니다.",
+            f"{session_plan}는 단기 감량보다 생활 루틴을 만들어 결과를 유지하는 데 도움이 되는 기간입니다.",
         ]
     else:
         sales_talk = [
-            f"{member_name} 회원님은 현재 '{issue['title']}' 정리가 우선입니다.",
-            "원인 패턴을 먼저 잡아야 운동 효과와 체감 변화가 빨라집니다.",
-            f"{session_plan}는 자세 교정과 루틴 정착을 함께 만드는 기간입니다.",
+            f"{member_name} 회원님은 현재 몸 상태에 맞는 움직임 순서를 정리해가면 운동 효과를 훨씬 편하게 느끼실 수 있습니다.",
+            "원인이 되는 패턴을 먼저 가볍게 조정해두면 운동 효율과 체감 변화가 더 안정적으로 따라올 수 있습니다.",
+            f"{session_plan}는 자세와 루틴을 함께 정리해가며 변화를 만들어가기 좋은 기간입니다.",
         ]
 
     coach_takeaway = (
-        f"상담 시 '{issue['problem_label']}'을 과장하지 말고 원인, 수정 방향, 예상 기간 순서로 설명하면 설득력이 높습니다. "
-        f"{session_count}회 기준으로 초기 적응, 중기 개선, 후기 정착 흐름을 짧게 제시하세요."
+        f"지금부터는 무리하게 바꾸기보다, {session_count}회 기준으로 초기 적응 → 움직임 개선 → 생활 습관 정착의 순서로 차근차근 진행하면 보다 안정적인 변화를 기대할 수 있습니다."
     )
 
     return {
-        "title": "4. 문제 인식 & 관리 필요성",
+        "title": "4. 현재 상태 이해 & 맞춤 관리 방향",
         "problem_name": issue["title"],
-        "problem_summary": f"현재 상담의 핵심 이슈는 '{issue['title']}'입니다. 비교 설명이 먼저 들어가야 회원이 빠르게 납득합니다.",
+        "problem_summary": f"현재 운동 습관과 생활 패턴을 함께 살펴보면 '{issue['title']}'와 관련된 관리 포인트가 보입니다. 아래 비교를 통해 잘 유지하면 좋은 부분과 함께 조정하면 좋은 부분을 편하게 확인해보실 수 있습니다.",
         "compare_title": issue["compare_title"],
         "normal_label": issue["normal_label"],
         "problem_label": issue["problem_label"],
@@ -2825,20 +2824,20 @@ TEMPLATE_A = Template(
     </div>
     <div class="sales-columns">
       <div class="sales-box">
-        <div class="sales-box-title">문제 원인</div>
+        <div class="sales-box-title">현재 영향을 주는 요인</div>
         <ul class="sales-list">{% for item in sales_focus.causes %}<li>{{ item }}</li>{% endfor %}</ul>
       </div>
       <div class="sales-box">
-        <div class="sales-box-title">방치 시 위험</div>
+        <div class="sales-box-title">지속될 경우 불편해질 수 있는 부분</div>
         <ul class="sales-list">{% for item in sales_focus.risks %}<li>{{ item }}</li>{% endfor %}</ul>
       </div>
       <div class="sales-box">
-        <div class="sales-box-title">왜 관리가 필요한가</div>
+        <div class="sales-box-title">이런 방향으로 관리하면 좋은 이유</div>
         <ul class="sales-list">{% for item in sales_focus.pt_need %}<li>{{ item }}</li>{% endfor %}</ul>
       </div>
     </div>
     <div class="talk-box">
-      <div class="sales-box-title">상담 멘트</div>
+      <div class="sales-box-title">회원님 맞춤 안내</div>
       {% for line in sales_focus.sales_talk %}<div class="talk-line">{{ line }}</div>{% endfor %}
       <div class="coach-takeaway">{{ sales_focus.coach_takeaway }}</div>
     </div>
@@ -2953,20 +2952,20 @@ TEMPLATE_B = Template(
     </div>
     <div class="sales-columns">
       <div class="sales-box">
-        <div class="sales-box-title">문제 원인</div>
+        <div class="sales-box-title">현재 영향을 주는 요인</div>
         <ul class="sales-list">{% for item in sales_focus.causes %}<li>{{ item }}</li>{% endfor %}</ul>
       </div>
       <div class="sales-box">
-        <div class="sales-box-title">방치 시 위험</div>
+        <div class="sales-box-title">지속될 경우 불편해질 수 있는 부분</div>
         <ul class="sales-list">{% for item in sales_focus.risks %}<li>{{ item }}</li>{% endfor %}</ul>
       </div>
       <div class="sales-box">
-        <div class="sales-box-title">왜 관리가 필요한가</div>
+        <div class="sales-box-title">이런 방향으로 관리하면 좋은 이유</div>
         <ul class="sales-list">{% for item in sales_focus.pt_need %}<li>{{ item }}</li>{% endfor %}</ul>
       </div>
     </div>
     <div class="talk-box">
-      <div class="sales-box-title">상담 멘트</div>
+      <div class="sales-box-title">회원님 맞춤 안내</div>
       {% for line in sales_focus.sales_talk %}<div class="talk-line">{{ line }}</div>{% endfor %}
       <div class="coach-takeaway">{{ sales_focus.coach_takeaway }}</div>
     </div>
@@ -3109,20 +3108,20 @@ TEMPLATE_C = Template(
     </div>
     <div class="sales-columns">
       <div class="sales-box">
-        <div class="sales-box-title">문제 원인</div>
+        <div class="sales-box-title">현재 영향을 주는 요인</div>
         <ul class="sales-list">{% for item in sales_focus.causes %}<li>{{ item }}</li>{% endfor %}</ul>
       </div>
       <div class="sales-box">
-        <div class="sales-box-title">방치 시 위험</div>
+        <div class="sales-box-title">지속될 경우 불편해질 수 있는 부분</div>
         <ul class="sales-list">{% for item in sales_focus.risks %}<li>{{ item }}</li>{% endfor %}</ul>
       </div>
       <div class="sales-box">
-        <div class="sales-box-title">왜 관리가 필요한가</div>
+        <div class="sales-box-title">이런 방향으로 관리하면 좋은 이유</div>
         <ul class="sales-list">{% for item in sales_focus.pt_need %}<li>{{ item }}</li>{% endfor %}</ul>
       </div>
     </div>
     <div class="talk-box">
-      <div class="sales-box-title">상담 멘트</div>
+      <div class="sales-box-title">회원님 맞춤 안내</div>
       {% for line in sales_focus.sales_talk %}<div class="talk-line">{{ line }}</div>{% endfor %}
       <div class="coach-takeaway">{{ sales_focus.coach_takeaway }}</div>
     </div>
@@ -3882,7 +3881,7 @@ if st.session_state.get("report_html"):
                         value=current_report.get("direction_section", {}).get("guide", ""),
                     )
                     sales_talk_text = st.text_area(
-                        "상담 핵심 멘트",
+                        "회원 안내 문구",
                         value="\n".join(sales_focus_data.get("sales_talk", [])),
                         height=120,
                     )
@@ -3892,12 +3891,12 @@ if st.session_state.get("report_html"):
                         height=160,
                     )
                     coach_takeaway_text = st.text_area(
-                        "상담 요약 코멘트",
+                        "마무리 안내 문구",
                         value=sales_focus_data.get("coach_takeaway", ""),
                         height=100,
                     )
 
-                st.markdown("#### 문제 인식 & 관리 필요성 수정")
+                st.markdown("#### 현재 상태 이해 & 관리 방향 수정")
                 sf1, sf2 = st.columns(2)
                 with sf1:
                     sales_focus_normal_points_text = st.text_area(
@@ -3906,7 +3905,7 @@ if st.session_state.get("report_html"):
                         height=150,
                     )
                     sales_focus_causes_text = st.text_area(
-                        "문제 원인",
+                        "현재 영향을 주는 요인",
                         value="\n".join(sales_focus_data.get("causes", [])),
                         height=140,
                     )
@@ -3917,12 +3916,12 @@ if st.session_state.get("report_html"):
                         height=150,
                     )
                     sales_focus_risks_text = st.text_area(
-                        "방치 시 위험",
+                        "지속될 경우 불편해질 수 있는 부분",
                         value="\n".join(sales_focus_data.get("risks", [])),
                         height=140,
                     )
                 sales_focus_need_text = st.text_area(
-                    "왜 관리가 필요한가",
+                    "이런 방향으로 관리하면 좋은 이유",
                     value="\n".join(sales_focus_data.get("pt_need", [])),
                     height=140,
                 )
