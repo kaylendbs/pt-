@@ -2130,11 +2130,148 @@ COMMON_CSS = r"""
     .compare-pane.bad { background:#fff7f5 !important; }
     .footer-meta { color:#7a8694 !important; }
   }
+  #floating-editor-toolbar {
+    position:sticky; top:10px; z-index:9999; display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+    width:fit-content; margin:0 auto 12px; padding:10px 12px; border-radius:14px;
+    background:rgba(15,36,56,.92); color:#fff; box-shadow:0 10px 24px rgba(15,36,56,.22);
+    backdrop-filter:blur(8px);
+  }
+  #floating-editor-toolbar button {
+    border:none; border-radius:10px; padding:8px 12px; cursor:pointer; font-size:12px; font-weight:800;
+    color:#18334c; background:#ffffff;
+  }
+  #floating-editor-toolbar .editor-status {
+    font-size:12px; font-weight:800; color:#d9e8f6; padding-left:2px;
+  }
+  #editor-help-note {
+    width:210mm; max-width:100%; margin:0 auto 12px; padding:10px 14px; border-radius:12px;
+    background:#eef5fc; border:1px solid #d8e5f1; color:#25425c; font-size:12.5px; line-height:1.6;
+  }
+  .sheet.live-edit-mode {
+    outline:3px dashed #3b82f6; outline-offset:6px;
+  }
+  .sheet[contenteditable="true"] {
+    cursor:text;
+  }
+  .sheet[contenteditable="true"] * {
+    cursor:text;
+  }
 </style>
 """
 
 HTML_BASE_HEAD = """<!DOCTYPE html><html lang='ko'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'>{{ css }}</head><body>"""
-HTML_BASE_FOOT = "</body></html>"
+HTML_BASE_FOOT = """
+<script>
+(function () {
+  function boot() {
+    const sheet = document.querySelector('.sheet');
+    if (!sheet || document.getElementById('floating-editor-toolbar')) return;
+
+    let editing = false;
+    sheet.setAttribute('spellcheck', 'false');
+
+    const toolbar = document.createElement('div');
+    toolbar.id = 'floating-editor-toolbar';
+    toolbar.innerHTML = `
+      <button type="button" data-action="toggle">편집 시작</button>
+      <button type="button" data-action="copy">수정본 HTML 복사</button>
+      <button type="button" data-action="download">수정본 HTML 다운로드</button>
+      <span class="editor-status">읽기 모드</span>
+    `;
+    document.body.insertBefore(toolbar, document.body.firstChild);
+
+    const note = document.createElement('div');
+    note.id = 'editor-help-note';
+    note.textContent = '편집 시작을 누르면 문서 안에서 직접 수정할 수 있습니다.';
+    document.body.insertBefore(note, sheet);
+
+    const toggleBtn = toolbar.querySelector('[data-action="toggle"]');
+    const status = toolbar.querySelector('.editor-status');
+
+    function setEditing(on) {
+      editing = on;
+      if (editing) {
+        sheet.setAttribute('contenteditable', 'true');
+        sheet.classList.add('live-edit-mode');
+        toggleBtn.textContent = '편집 종료';
+        status.textContent = '편집 모드';
+        note.textContent = '문서 안을 클릭해서 바로 수정하세요. 수정본 저장은 창 안의 HTML 다운로드를 사용하면 됩니다.';
+        sheet.focus();
+      } else {
+        sheet.removeAttribute('contenteditable');
+        sheet.classList.remove('live-edit-mode');
+        toggleBtn.textContent = '편집 시작';
+        status.textContent = '읽기 모드';
+        note.textContent = '편집 시작을 누르면 문서 안에서 직접 수정할 수 있습니다.';
+      }
+    }
+
+    function buildHtmlSnapshot() {
+      const clone = document.documentElement.cloneNode(true);
+      const floatingToolbar = clone.querySelector('#floating-editor-toolbar');
+      const helpNote = clone.querySelector('#editor-help-note');
+      if (floatingToolbar) floatingToolbar.remove();
+      if (helpNote) helpNote.remove();
+      clone.querySelectorAll('[contenteditable]').forEach(function (node) {
+        node.removeAttribute('contenteditable');
+      });
+      clone.querySelectorAll('.live-edit-mode').forEach(function (node) {
+        node.classList.remove('live-edit-mode');
+      });
+      return '<!DOCTYPE html>\n' + clone.outerHTML;
+    }
+
+    function copyText(value) {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(value).then(function () {
+          status.textContent = '복사 완료';
+        }).catch(function () {
+          fallbackCopy(value);
+        });
+      } else {
+        fallbackCopy(value);
+      }
+    }
+
+    function fallbackCopy(value) {
+      const textarea = document.createElement('textarea');
+      textarea.value = value;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      textarea.remove();
+      status.textContent = '복사 완료';
+    }
+
+    function downloadHtml() {
+      const html = buildHtmlSnapshot();
+      const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'edited_report.html';
+      link.click();
+      URL.revokeObjectURL(link.href);
+      status.textContent = '다운로드 완료';
+    }
+
+    toolbar.addEventListener('click', function (event) {
+      const action = event.target && event.target.dataset ? event.target.dataset.action : '';
+      if (!action) return;
+      if (action === 'toggle') setEditing(!editing);
+      if (action === 'copy') copyText(buildHtmlSnapshot());
+      if (action === 'download') downloadHtml();
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+})();
+</script>
+</body></html>
+"""
 
 TEMPLATE_A = Template(
     HTML_BASE_HEAD
@@ -2949,11 +3086,12 @@ if st.session_state.get("report_html"):
                         st.image(img, caption=f"문서 반영 이미지 {idx + 1}", use_container_width=True)
         elif ref_image:
             st.image(ref_image, caption="문서에 들어간 참고 이미지 확인", use_container_width=True)
-        st.components.v1.html(st.session_state["report_html"], height=1650, scrolling=True)
+        st.caption("이제 미리보기 창 안에서 바로 수정할 수 있습니다. 편집본 저장은 창 안의 '수정본 HTML 다운로드'를 사용하세요.")
+        st.components.v1.html(st.session_state["report_html"], height=1750, scrolling=True)
 
         current_report = deepcopy(st.session_state["report_json"])
-        st.markdown("### 문서 수정")
-        st.caption("미리보기 아래에서 바로 수정하고 다시 렌더링할 수 있습니다.")
+        st.markdown("### 정밀 수정(선택)")
+        st.caption("창 안 직접 수정이 기본입니다. 아래 편집기는 구조화된 수정이 필요할 때만 사용하세요.")
         with st.form("report_editor_form"):
             e1, e2 = st.columns(2)
             with e1:
