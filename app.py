@@ -2175,7 +2175,7 @@ HTML_BASE_FOOT = """
     if (!sheet || document.getElementById('floating-editor-toolbar')) return;
 
     const editableSelector = [
-      '.topbar', '.trainer-line', '.guide-line', '.member-name', '.section-title', '.bullet-item', '.paragraph',
+      '.topbar', '.trainer-line', '.guide-line', '.member-name', '.section-title', '.bullet-item', '.paragraph', '.sales-list li',
       '.sales-problem-chip', '.compare-title', '.compare-head', '.sales-box-title', '.talk-line', '.coach-takeaway',
       '.ref-title', '.ref-caption', '.ref-item-caption', '.direction-lead', '.direction-note', '.phase-step',
       '.phase-period', '.phase-title', '.phase-summary', '.phase-tag', '.coach-title', '.coach-letter', '.footer-meta',
