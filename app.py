@@ -343,6 +343,29 @@ div[data-testid="stVerticalBlock"] div:has(> .premium-hero) {
   box-shadow:0 10px 22px rgba(16,42,67,.09);
 }
 
+/* ===== 정밀 수정 폼 버튼 가독성 ===== */
+[data-testid="stForm"] [data-testid="stFormSubmitButton"] > button {
+  background:linear-gradient(135deg,#14314b,#245886) !important;
+  color:#ffffff !important;
+  -webkit-text-fill-color:#ffffff !important;
+  border:none !important;
+}
+[data-testid="stForm"] [data-testid="stFormSubmitButton"] > button:hover,
+[data-testid="stForm"] [data-testid="stFormSubmitButton"] > button:focus,
+[data-testid="stForm"] [data-testid="stFormSubmitButton"] > button:active {
+  background:linear-gradient(135deg,#102a43,#204d77) !important;
+  color:#ffffff !important;
+  -webkit-text-fill-color:#ffffff !important;
+  border:none !important;
+}
+[data-testid="stForm"] [data-testid="stFormSubmitButton"] > button *,
+[data-testid="stForm"] [data-testid="stFormSubmitButton"] > button div,
+[data-testid="stForm"] [data-testid="stFormSubmitButton"] > button span,
+[data-testid="stForm"] [data-testid="stFormSubmitButton"] > button p {
+  color:#ffffff !important;
+  -webkit-text-fill-color:#ffffff !important;
+}
+
 .stTextInput input,
 .stNumberInput input,
 textarea,
@@ -420,6 +443,23 @@ input::placeholder {
 }
 
 /* ===== 데이터 에디터 밝은 테마 고정 ===== */
+[data-testid="stDataEditor"] {
+  --gdg-bg-cell:#ffffff;
+  --gdg-bg-cell-medium:#f8fbff;
+  --gdg-bg-header:#f4f8fc;
+  --gdg-bg-header-has-focus:#ebf3fb;
+  --gdg-bg-header-hovered:#eef5fc;
+  --gdg-bg-bubble:#edf4fb;
+  --gdg-bg-bubble-selected:#dfeaf7;
+  --gdg-bg-search-result:#eef5fc;
+  --gdg-border-color:#d9e5ef;
+  --gdg-horizontal-border-color:#d9e5ef;
+  --gdg-vertical-border-color:#d9e5ef;
+  --gdg-accent-color:#245886;
+  --gdg-text-dark:#102a43;
+  --gdg-text-medium:#102a43;
+  --gdg-text-light:#5f7286;
+}
 [data-testid="stDataEditor"],
 [data-testid="stDataEditor"] * {
   color:#102a43 !important;
@@ -429,24 +469,40 @@ input::placeholder {
 [data-testid="stDataEditor"] [role="grid"],
 [data-testid="stDataEditor"] .glideDataEditor,
 [data-testid="stDataEditor"] .glide-data-grid,
+[data-testid="stDataEditor"] .dvn-scroller,
 [data-testid="stDataEditor"] canvas {
   background:#ffffff !important;
   color:#102a43 !important;
 }
 [data-testid="stDataEditor"] [data-testid="stToolbar"],
-[data-testid="stDataEditor"] [data-testid="stElementToolbar"] {
+[data-testid="stDataEditor"] [data-testid="stElementToolbar"],
+[data-testid="stDataEditor"] [data-testid="stDataFrameGlideDataEditor"] {
   background:#ffffff !important;
 }
 [data-testid="stDataEditor"] button,
-[data-testid="stDataEditor"] button * {
+[data-testid="stDataEditor"] button *,
+[data-testid="stDataEditor"] svg,
+[data-testid="stDataEditor"] svg * {
   color:#102a43 !important;
   fill:#102a43 !important;
   stroke:#102a43 !important;
 }
 [data-testid="stDataEditor"] input,
 [data-testid="stDataEditor"] textarea,
-[data-testid="stDataEditor"] [contenteditable="true"] {
+[data-testid="stDataEditor"] [contenteditable="true"],
+[data-testid="stDataEditor"] [role="textbox"],
+[data-testid="stDataEditor"] .gdg-input,
+[data-testid="stDataEditor"] .gdg-text-input {
   background:#ffffff !important;
+  color:#102a43 !important;
+  caret-color:#102a43 !important;
+  -webkit-text-fill-color:#102a43 !important;
+  border-color:#cfdceb !important;
+}
+[data-testid="stDataEditor"] [contenteditable="true"] *,
+[data-testid="stDataEditor"] [role="textbox"] *,
+[data-testid="stDataEditor"] .gdg-input *,
+[data-testid="stDataEditor"] .gdg-text-input * {
   color:#102a43 !important;
   -webkit-text-fill-color:#102a43 !important;
 }
