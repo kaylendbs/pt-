@@ -2174,6 +2174,7 @@ HTML_BASE_FOOT = """
     toolbar.id = 'floating-editor-toolbar';
     toolbar.innerHTML = `
       <button type="button" data-action="toggle">편집 시작</button>
+      <button type="button" data-action="sync">앱에 반영</button>
       <button type="button" data-action="copy">수정본 HTML 복사</button>
       <button type="button" data-action="download">수정본 HTML 다운로드</button>
       <span class="editor-status">읽기 모드</span>
@@ -2188,6 +2189,29 @@ HTML_BASE_FOOT = """
     const toggleBtn = toolbar.querySelector('[data-action="toggle"]');
     const status = toolbar.querySelector('.editor-status');
 
+    function findParentButton(doc, text) {
+      return Array.from(doc.querySelectorAll('button')).find(function (button) {
+        return (button.innerText || '').trim() === text;
+      });
+    }
+
+    function hideBridgeWidgets() {
+      try {
+        const parentDoc = window.parent.document;
+        const bridgeTextarea = parentDoc.querySelector('textarea[aria-label="편집 HTML 동기화 버퍼"]');
+        const bridgeButton = findParentButton(parentDoc, '편집 HTML 앱 반영');
+        if (bridgeTextarea) {
+          const wrap = bridgeTextarea.closest('[data-testid="stTextArea"]') || bridgeTextarea.parentElement;
+          if (wrap) wrap.style.display = 'none';
+        }
+        if (bridgeButton) {
+          const wrap = bridgeButton.closest('[data-testid="stButton"]') || bridgeButton.parentElement;
+          if (wrap) wrap.style.display = 'none';
+        }
+      } catch (error) {
+      }
+    }
+
     function setEditing(on) {
       editing = on;
       if (editing) {
@@ -2195,7 +2219,7 @@ HTML_BASE_FOOT = """
         sheet.classList.add('live-edit-mode');
         toggleBtn.textContent = '편집 종료';
         status.textContent = '편집 모드';
-        note.textContent = '문서 안을 클릭해서 바로 수정하세요. 수정본 저장은 창 안의 HTML 다운로드를 사용하면 됩니다.';
+        note.textContent = '문서 안을 클릭해서 바로 수정하세요. 편집 종료 또는 앱에 반영을 누르면 다운로드 영역에도 반영됩니다.';
         sheet.focus();
       } else {
         sheet.removeAttribute('contenteditable');
@@ -2203,6 +2227,7 @@ HTML_BASE_FOOT = """
         toggleBtn.textContent = '편집 시작';
         status.textContent = '읽기 모드';
         note.textContent = '편집 시작을 누르면 문서 안에서 직접 수정할 수 있습니다.';
+        syncToApp(false);
       }
     }
 
@@ -2243,6 +2268,29 @@ HTML_BASE_FOOT = """
       status.textContent = '복사 완료';
     }
 
+    function syncToApp(showMessage) {
+      try {
+        const parentDoc = window.parent.document;
+        const bridgeTextarea = parentDoc.querySelector('textarea[aria-label="편집 HTML 동기화 버퍼"]');
+        const bridgeButton = findParentButton(parentDoc, '편집 HTML 앱 반영');
+        if (!bridgeTextarea || !bridgeButton) {
+          status.textContent = '앱 반영 실패';
+          return;
+        }
+        const html = buildHtmlSnapshot();
+        bridgeTextarea.value = html;
+        bridgeTextarea.textContent = html;
+        bridgeTextarea.dispatchEvent(new Event('input', { bubbles: true }));
+        bridgeTextarea.dispatchEvent(new Event('change', { bubbles: true }));
+        status.textContent = showMessage ? '앱 반영 중' : '자동 반영 중';
+        setTimeout(function () {
+          bridgeButton.click();
+        }, 120);
+      } catch (error) {
+        status.textContent = '앱 반영 실패';
+      }
+    }
+
     function downloadHtml() {
       const html = buildHtmlSnapshot();
       const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
@@ -2254,10 +2302,14 @@ HTML_BASE_FOOT = """
       status.textContent = '다운로드 완료';
     }
 
+    hideBridgeWidgets();
+    setTimeout(hideBridgeWidgets, 600);
+
     toolbar.addEventListener('click', function (event) {
       const action = event.target && event.target.dataset ? event.target.dataset.action : '';
       if (!action) return;
       if (action === 'toggle') setEditing(!editing);
+      if (action === 'sync') syncToApp(true);
       if (action === 'copy') copyText(buildHtmlSnapshot());
       if (action === 'download') downloadHtml();
     });
@@ -2723,6 +2775,15 @@ def refresh_rendered_report(report: Dict[str, Any]) -> None:
     st.session_state["report_pdf"] = html_to_pdf_bytes(html)
 
 
+def refresh_rendered_html(edited_html: str) -> None:
+    html = safe_text(edited_html)
+    if not html:
+        return
+    st.session_state["report_html"] = html
+    st.session_state["report_pdf"] = html_to_pdf_bytes(html)
+    st.session_state["report_html_synced"] = html
+
+
 def direction_rows_to_editor_df(rows: List[Dict[str, str]]) -> pd.DataFrame:
     return pd.DataFrame([
         {
@@ -3086,7 +3147,14 @@ if st.session_state.get("report_html"):
                         st.image(img, caption=f"문서 반영 이미지 {idx + 1}", use_container_width=True)
         elif ref_image:
             st.image(ref_image, caption="문서에 들어간 참고 이미지 확인", use_container_width=True)
-        st.caption("이제 미리보기 창 안에서 바로 수정할 수 있습니다. 편집본 저장은 창 안의 '수정본 HTML 다운로드'를 사용하세요.")
+        synced_html_buffer = st.text_area("편집 HTML 동기화 버퍼", key="html_sync_buffer")
+        sync_apply_clicked = st.button("편집 HTML 앱 반영", key="html_sync_apply")
+        if sync_apply_clicked and safe_text(synced_html_buffer):
+            refresh_rendered_html(synced_html_buffer)
+            st.session_state["editor_notice"] = "창 안에서 수정한 내용을 다운로드 HTML/PDF에 반영했습니다."
+            st.rerun()
+
+        st.caption("창 안에서 직접 수정한 뒤 '편집 종료' 또는 '앱에 반영'을 누르면 아래 다운로드 HTML/PDF에도 그대로 반영됩니다.")
         st.components.v1.html(st.session_state["report_html"], height=1750, scrolling=True)
 
         current_report = deepcopy(st.session_state["report_json"])
