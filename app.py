@@ -377,6 +377,16 @@ textarea,
   color:var(--ui-navy-strong) !important;
 }
 
+/* ===== 내부 브리지 위젯 숨김 ===== */
+[data-testid="stTextArea"]:has(textarea[aria-label="편집 HTML 동기화 버퍼"]),
+[data-testid="stTextArea"]:has(textarea[aria-label="자동저장 HTML 복원 버퍼"]) {
+  display:none !important;
+}
+[data-testid="stTextArea"]:has(textarea[aria-label="편집 HTML 동기화 버퍼"]) + div,
+[data-testid="stTextArea"]:has(textarea[aria-label="자동저장 HTML 복원 버퍼"]) + div {
+  display:none !important;
+}
+
 .stNumberInput button {
   background:#2a3040 !important;
   color:#ffffff !important;
@@ -1746,7 +1756,7 @@ def build_base_report(member: Dict[str, Any], template_type: str) -> Dict[str, A
             "report_version": "sales-focus-v4-roadmap-premium",
         },
         "header": {
-            "title": "PT 1:1 맞춤 세일즈 제안서",
+            "title": "1:1 퍼스널 운동계획서",
             "trainer_line": f"{member['gym_name']} {member['trainer_name']} 트레이너",
             "guide_text": TOP_GUIDE_TEXT,
             "member_display_name": f"{member_name} 회원님",
