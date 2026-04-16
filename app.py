@@ -554,6 +554,39 @@ hr {
   color:#f7fbff !important;
   opacity:1 !important;
 }
+[data-testid="stSidebar"] .stTextInput button,
+[data-testid="stSidebar"] .stTextInput button *,
+[data-testid="stSidebar"] .stTextInput [role="button"],
+[data-testid="stSidebar"] .stTextInput [role="button"] *,
+[data-testid="stSidebar"] input[type="password"] + button,
+[data-testid="stSidebar"] input[type="password"] + button *,
+[data-testid="stSidebar"] button[aria-label*="password" i],
+[data-testid="stSidebar"] button[aria-label*="비밀번호" i],
+[data-testid="stSidebar"] button[title*="password" i],
+[data-testid="stSidebar"] button[title*="표시" i],
+[data-testid="stSidebar"] button[title*="숨기" i] {
+  color:#ffffff !important;
+  fill:#ffffff !important;
+  stroke:#ffffff !important;
+  -webkit-text-fill-color:#ffffff !important;
+  opacity:1 !important;
+}
+[data-testid="stSidebar"] .stTextInput button svg,
+[data-testid="stSidebar"] .stTextInput button svg *,
+[data-testid="stSidebar"] .stTextInput [role="button"] svg,
+[data-testid="stSidebar"] .stTextInput [role="button"] svg *,
+[data-testid="stSidebar"] input[type="password"] + button svg,
+[data-testid="stSidebar"] input[type="password"] + button svg *,
+[data-testid="stSidebar"] button[aria-label*="password" i] svg,
+[data-testid="stSidebar"] button[aria-label*="password" i] svg *,
+[data-testid="stSidebar"] button[title*="표시" i] svg,
+[data-testid="stSidebar"] button[title*="표시" i] svg * {
+  color:#ffffff !important;
+  fill:#ffffff !important;
+  stroke:#ffffff !important;
+  opacity:1 !important;
+  filter:brightness(0) invert(1) !important;
+}
 
 /* ===== 메인 입력 UI 아이콘 가독성 ===== */
 .stSelectbox svg,
