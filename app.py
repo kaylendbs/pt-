@@ -2150,11 +2150,18 @@ COMMON_CSS = r"""
   .sheet.live-edit-mode {
     outline:3px dashed #3b82f6; outline-offset:6px;
   }
-  .sheet[contenteditable="true"] {
+  .editable-node {
     cursor:text;
+    transition:box-shadow .15s ease, background-color .15s ease;
   }
-  .sheet[contenteditable="true"] * {
-    cursor:text;
+  .editable-node:hover {
+    background:rgba(59,130,246,.06);
+  }
+  .editable-node:focus {
+    outline:none;
+    box-shadow:0 0 0 2px rgba(59,130,246,.35);
+    background:rgba(59,130,246,.08);
+    border-radius:6px;
   }
 </style>
 """
@@ -2167,27 +2174,49 @@ HTML_BASE_FOOT = """
     const sheet = document.querySelector('.sheet');
     if (!sheet || document.getElementById('floating-editor-toolbar')) return;
 
+    const editableSelector = [
+      '.topbar', '.trainer-line', '.guide-line', '.member-name', '.section-title', '.bullet-item', '.paragraph',
+      '.sales-problem-chip', '.compare-title', '.compare-head', '.sales-box-title', '.talk-line', '.coach-takeaway',
+      '.ref-title', '.ref-caption', '.ref-item-caption', '.direction-lead', '.direction-note', '.phase-step',
+      '.phase-period', '.phase-title', '.phase-summary', '.phase-tag', '.coach-title', '.coach-letter', '.footer-meta',
+      '.tag', '.mini-box', '.extra-title', 'th', 'td'
+    ].join(',');
+
+    const editableNodes = Array.from(sheet.querySelectorAll(editableSelector));
     let editing = true;
-    sheet.setAttribute('spellcheck', 'false');
 
     const toolbar = document.createElement('div');
     toolbar.id = 'floating-editor-toolbar';
     toolbar.innerHTML = `
-      <button type="button" data-action="toggle">편집 시작</button>
+      <button type="button" data-action="toggle">편집 잠금</button>
+      <button type="button" data-action="bold"><b>B</b></button>
+      <button type="button" data-action="italic"><i>I</i></button>
+      <button type="button" data-action="underline"><u>U</u></button>
+      <button type="button" data-action="h2">제목</button>
+      <button type="button" data-action="p">본문</button>
+      <button type="button" data-action="ul">목록</button>
+      <button type="button" data-action="remove-format">서식지움</button>
+      <button type="button" data-action="undo">↶</button>
+      <button type="button" data-action="redo">↷</button>
       <button type="button" data-action="sync">앱에 반영</button>
-      <button type="button" data-action="copy">수정본 HTML 복사</button>
-      <button type="button" data-action="download">수정본 HTML 다운로드</button>
-      <span class="editor-status">읽기 모드</span>
+      <button type="button" data-action="copy">HTML 복사</button>
+      <button type="button" data-action="download">HTML 다운로드</button>
+      <span class="editor-status">직접 수정 중</span>
     `;
     document.body.insertBefore(toolbar, document.body.firstChild);
 
     const note = document.createElement('div');
     note.id = 'editor-help-note';
-    note.textContent = '편집 시작을 누르면 문서 안에서 직접 수정할 수 있습니다.';
+    note.textContent = '완성된 계획서 영역 자체를 직접 수정할 수 있습니다. 문단, 표, 줄바꿈, 굵기까지 바로 편집한 뒤 앱에 반영을 누르세요.';
     document.body.insertBefore(note, sheet);
 
     const toggleBtn = toolbar.querySelector('[data-action="toggle"]');
     const status = toolbar.querySelector('.editor-status');
+
+    editableNodes.forEach(function (node) {
+      node.setAttribute('spellcheck', 'false');
+      node.classList.add('editable-node');
+    });
 
     function findParentButton(doc, text) {
       return Array.from(doc.querySelectorAll('button')).find(function (button) {
@@ -2212,22 +2241,34 @@ HTML_BASE_FOOT = """
       }
     }
 
+    function keepBridgeWidgetsHidden() {
+      let attempts = 0;
+      const timer = setInterval(function () {
+        hideBridgeWidgets();
+        attempts += 1;
+        if (attempts > 20) clearInterval(timer);
+      }, 400);
+    }
+
     function setEditing(on) {
       editing = on;
+      editableNodes.forEach(function (node) {
+        if (editing) {
+          node.setAttribute('contenteditable', 'true');
+        } else {
+          node.removeAttribute('contenteditable');
+        }
+      });
       if (editing) {
-        sheet.setAttribute('contenteditable', 'true');
         sheet.classList.add('live-edit-mode');
         toggleBtn.textContent = '편집 잠금';
         status.textContent = '직접 수정 중';
-        note.textContent = '계획서 본문을 바로 클릭해서 수정하세요. 수정 후 앱에 반영을 누르면 다운로드 HTML/PDF에도 그대로 반영됩니다.';
-        sheet.focus();
+        note.textContent = '완성된 계획서에서 바로 수정 중입니다. 서식 버튼을 누르고 앱에 반영하면 다운로드 HTML/PDF도 같이 바뀝니다.';
       } else {
-        sheet.removeAttribute('contenteditable');
         sheet.classList.remove('live-edit-mode');
         toggleBtn.textContent = '편집 재개';
         status.textContent = '읽기 모드';
-        note.textContent = '현재 잠금 상태입니다. 다시 수정하려면 편집 재개를 누르세요.';
-        syncToApp(false);
+        note.textContent = '잠금 상태입니다. 다시 수정하려면 편집 재개를 누르세요.';
       }
     }
 
@@ -2249,7 +2290,7 @@ HTML_BASE_FOOT = """
     function copyText(value) {
       if (navigator.clipboard && window.isSecureContext) {
         navigator.clipboard.writeText(value).then(function () {
-          status.textContent = '복사 완료';
+          status.textContent = 'HTML 복사 완료';
         }).catch(function () {
           fallbackCopy(value);
         });
@@ -2265,10 +2306,10 @@ HTML_BASE_FOOT = """
       textarea.select();
       document.execCommand('copy');
       textarea.remove();
-      status.textContent = '복사 완료';
+      status.textContent = 'HTML 복사 완료';
     }
 
-    function syncToApp(showMessage) {
+    function syncToApp() {
       try {
         const parentDoc = window.parent.document;
         const bridgeTextarea = parentDoc.querySelector('textarea[aria-label="편집 HTML 동기화 버퍼"]');
@@ -2282,7 +2323,7 @@ HTML_BASE_FOOT = """
         bridgeTextarea.textContent = html;
         bridgeTextarea.dispatchEvent(new Event('input', { bubbles: true }));
         bridgeTextarea.dispatchEvent(new Event('change', { bubbles: true }));
-        status.textContent = showMessage ? '앱 반영 중' : '자동 반영 중';
+        status.textContent = '앱 반영 중';
         setTimeout(function () {
           bridgeButton.click();
         }, 120);
@@ -2299,18 +2340,37 @@ HTML_BASE_FOOT = """
       link.download = 'edited_report.html';
       link.click();
       URL.revokeObjectURL(link.href);
-      status.textContent = '다운로드 완료';
+      status.textContent = 'HTML 다운로드 완료';
+    }
+
+    function runCommand(command, value) {
+      if (!editing) return;
+      document.execCommand(command, false, value || null);
+      status.textContent = '서식 적용 완료';
     }
 
     hideBridgeWidgets();
-    setTimeout(hideBridgeWidgets, 600);
+    keepBridgeWidgetsHidden();
     setEditing(true);
 
+    toolbar.addEventListener('mousedown', function (event) {
+      event.preventDefault();
+    });
+
     toolbar.addEventListener('click', function (event) {
-      const action = event.target && event.target.dataset ? event.target.dataset.action : '';
+      const action = event.target && event.target.dataset ? event.target.dataset.action : (event.target.parentElement && event.target.parentElement.dataset ? event.target.parentElement.dataset.action : '');
       if (!action) return;
       if (action === 'toggle') setEditing(!editing);
-      if (action === 'sync') syncToApp(true);
+      if (action === 'bold') runCommand('bold');
+      if (action === 'italic') runCommand('italic');
+      if (action === 'underline') runCommand('underline');
+      if (action === 'h2') runCommand('formatBlock', 'H2');
+      if (action === 'p') runCommand('formatBlock', 'P');
+      if (action === 'ul') runCommand('insertUnorderedList');
+      if (action === 'remove-format') runCommand('removeFormat');
+      if (action === 'undo') runCommand('undo');
+      if (action === 'redo') runCommand('redo');
+      if (action === 'sync') syncToApp();
       if (action === 'copy') copyText(buildHtmlSnapshot());
       if (action === 'download') downloadHtml();
     });
@@ -3155,7 +3215,7 @@ if st.session_state.get("report_html"):
             st.session_state["editor_notice"] = "창 안에서 수정한 내용을 다운로드 HTML/PDF에 반영했습니다."
             st.rerun()
 
-        st.caption("창 안에서 직접 수정한 뒤 '편집 종료' 또는 '앱에 반영'을 누르면 아래 다운로드 HTML/PDF에도 그대로 반영됩니다.")
+        st.caption("완성된 계획서 자체가 WYSIWYG 편집기로 열립니다. 문단, 표, 줄바꿈, 굵기까지 직접 수정한 뒤 '앱에 반영'을 누르면 HTML/PDF 다운로드에도 그대로 반영됩니다.")
         st.components.v1.html(st.session_state["report_html"], height=1750, scrolling=True)
 
         current_report = deepcopy(st.session_state["report_json"])
