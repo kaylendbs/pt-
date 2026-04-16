@@ -2,6 +2,7 @@ import os
 import re
 import json
 import base64
+import hashlib
 from copy import deepcopy
 from datetime import datetime
 from typing import Any, Dict, List, Optional
@@ -109,28 +110,65 @@ section.main {
 [data-testid="stSidebar"] textarea,
 [data-testid="stSidebar"] .stNumberInput input,
 [data-testid="stSidebar"] input {
-  background:rgba(255,255,255,.08) !important;
-  border:1px solid rgba(255,255,255,.15) !important;
+  background:rgba(8,24,39,.42) !important;
+  border:1px solid rgba(255,255,255,.22) !important;
   color:#f8fbff !important;
   border-radius:14px !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+}
+[data-testid="stSidebar"] [data-baseweb="input"] *,
+[data-testid="stSidebar"] [data-baseweb="select"] > div *,
+[data-testid="stSidebar"] textarea,
+[data-testid="stSidebar"] input,
+[data-testid="stSidebar"] .stNumberInput input {
+  color:#f8fbff !important;
+  caret-color:#ffffff !important;
 }
 [data-testid="stSidebar"] input::placeholder,
 [data-testid="stSidebar"] textarea::placeholder {
   color:rgba(247,251,255,.78) !important;
   opacity:1 !important;
 }
-[data-testid="stSidebar"] .stMultiSelect [data-baseweb="tag"] {
-  background:rgba(255,255,255,.12) !important;
-  color:#ffffff !important;
-  border:1px solid rgba(255,255,255,.14) !important;
+[data-testid="stSidebar"] .stMultiSelect [data-baseweb="tag"],
+[data-testid="stSidebar"] .stMultiSelect [data-baseweb="tag"] * {
+  background:#eaf2fb !important;
+  color:#14314b !important;
+  border:1px solid #bfd3e6 !important;
 }
 [data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"],
+[data-testid="stSidebar"] section[data-testid="stFileUploaderDropzone"] {
+  background:rgba(8,24,39,.38) !important;
+  border:1px dashed rgba(255,255,255,.26) !important;
+}
 [data-testid="stSidebar"] [data-testid="stFileUploaderDropzone"] *,
-[data-testid="stSidebar"] section[data-testid="stFileUploaderDropzone"],
+[data-testid="stSidebar"] section[data-testid="stFileUploaderDropzone"] *,
 [data-testid="stSidebar"] [data-baseweb="radio"] label,
 [data-testid="stSidebar"] [data-baseweb="checkbox"] label {
   color:#f8fbff !important;
   opacity:1 !important;
+}
+[data-testid="stSidebar"] [data-testid="stInfo"],
+[data-testid="stSidebar"] [data-testid="stSuccess"],
+[data-testid="stSidebar"] [data-testid="stWarning"],
+[data-testid="stSidebar"] [data-testid="stError"] {
+  background:rgba(255,255,255,.08) !important;
+  border:1px solid rgba(255,255,255,.12) !important;
+}
+[data-testid="stSidebar"] [data-testid="stInfo"] *,
+[data-testid="stSidebar"] [data-testid="stSuccess"] *,
+[data-testid="stSidebar"] [data-testid="stWarning"] *,
+[data-testid="stSidebar"] [data-testid="stError"] * {
+  color:#f8fbff !important;
+}
+[data-baseweb="popover"] [role="option"],
+div[role="listbox"] [role="option"],
+ul[role="listbox"] li {
+  color:#14314b !important;
+  background:#ffffff !important;
+}
+[data-baseweb="popover"] [aria-selected="true"],
+div[role="listbox"] [aria-selected="true"] {
+  background:#edf4fb !important;
 }
 [data-testid="stSidebar"] hr {
   border:none !important;
@@ -626,6 +664,87 @@ def split_lines(value: str) -> List[str]:
     return [line.strip() for line in safe_text(value).splitlines() if line.strip()]
 
 
+def nominalize_table_cell_text(text: str) -> str:
+    value = re.sub(r"\s+", " ", safe_text(text)).strip()
+    if not value:
+        return ""
+    value = value.rstrip(" .。!！")
+    replacements = [
+        ("해야 합니다", "해야 함"),
+        ("봐야 합니다", "봐야 함"),
+        ("되어야 합니다", "되어야 함"),
+        ("유지되어야 합니다", "유지되어야 함"),
+        ("중요합니다", "중요함"),
+        ("필요합니다", "필요함"),
+        ("적합합니다", "적합함"),
+        ("가능성이 높습니다", "가능성 높음"),
+        ("가능성이 큽니다", "가능성 큼"),
+        ("좋습니다", "좋음"),
+        ("높습니다", "높음"),
+        ("낮습니다", "낮음"),
+        ("빠릅니다", "빠름"),
+        ("큽니다", "큼"),
+        ("있습니다", "있음"),
+        ("됩니다", "됨"),
+        ("생깁니다", "생김"),
+        ("보입니다", "보임"),
+        ("느껴집니다", "느껴짐"),
+        ("이어집니다", "이어짐"),
+        ("잡힙니다", "잡힘"),
+        ("줄어듭니다", "줄어듦"),
+        ("늘어납니다", "늘어남"),
+        ("커집니다", "커짐"),
+        ("만듭니다", "만듦"),
+        ("높입니다", "높임"),
+        ("낮춥니다", "낮춤"),
+        ("줄입니다", "줄임"),
+        ("올립니다", "올림"),
+        ("키웁니다", "키움"),
+        ("세웁니다", "세움"),
+        ("맞춥니다", "맞춤"),
+        ("잡습니다", "잡음"),
+        ("남깁니다", "남김"),
+        ("돕습니다", "도움"),
+        ("정리합니다", "정리함"),
+        ("관리합니다", "관리함"),
+        ("점검합니다", "점검함"),
+        ("설계합니다", "설계함"),
+        ("진행합니다", "진행함"),
+        ("병행합니다", "병행함"),
+        ("적용합니다", "적용함"),
+        ("연결합니다", "연결함"),
+        ("유지합니다", "유지함"),
+        ("완성합니다", "완성함"),
+        ("집중합니다", "집중함"),
+        ("설명합니다", "설명함"),
+        ("코칭합니다", "코칭함"),
+        ("확인합니다", "확인함"),
+        ("교육합니다", "교육함"),
+        ("재교육합니다", "재교육함"),
+        ("학습시킵니다", "학습시킴"),
+    ]
+    for old, new in replacements:
+        if value.endswith(old):
+            value = value[: -len(old)] + new
+            break
+    if not re.search(r"(함|됨|음|임|움|짐|림|김|춤|큼|좋음|높음|낮음|빠름)$", value):
+        if value.endswith("이다"):
+            value = value[:-2] + "임"
+        elif value.endswith("다"):
+            value = value[:-1] + "함"
+    return value
+
+
+def nominalize_direction_rows(rows: List[Dict[str, str]]) -> List[Dict[str, str]]:
+    output: List[Dict[str, str]] = []
+    for row in rows or []:
+        updated = dict(row)
+        for key in ("v1", "v2", "v3"):
+            updated[key] = nominalize_table_cell_text(updated.get(key, ""))
+        output.append(updated)
+    return output
+
+
 def uploaded_file_to_data_uri(uploaded_file) -> Optional[str]:
     if uploaded_file is None:
         return None
@@ -964,7 +1083,7 @@ def build_direction_rows(member: Dict[str, Any], sales_focus: Dict[str, Any]) ->
         rows[5]["v2"] = "주 2회 PT + 월 단위 재평가로 성과와 생활 습관 정착도를 함께 관리합니다."
         rows[5]["v3"] = "후기에는 유지형 운영으로 전환하며, PT 없이도 관리 가능한 기준을 남깁니다."
 
-    return rows
+    return nominalize_direction_rows(rows)
 
 
 def contains_any(texts: List[str], keywords: List[str]) -> bool:
@@ -1679,7 +1798,7 @@ def build_prompt(member: Dict[str, Any], template_type: str) -> str:
 - section_3.paragraphs: 2~4개, 문단당 1~2문장
 - sales_focus.normal_points / problem_points / causes / risks / pt_need: 각각 3개 이상
 - sales_focus.sales_talk: 2~3개, 문장당 한 줄
-- direction_section.rows: 정확히 {len(ROW_LABELS)}개, 각 셀은 1문장
+- direction_section.rows: 정확히 {len(ROW_LABELS)}개, 각 셀은 1문장, 기록체 명사형(~함, ~음, ~됨)으로 작성
 - closing.letter: 3~4문장, 짧고 전문가 코멘트처럼 마무리
 
 내용 규칙:
@@ -2183,7 +2302,76 @@ HTML_BASE_FOOT = """
     ].join(',');
 
     const editableNodes = Array.from(sheet.querySelectorAll(editableSelector));
+    const autosaveStorageKey = 'pt_sales_report_autosave_v4';
+    const autosaveDocKey = sheet.dataset.autosaveDocKey || 'default';
+    let autosaveTimer = null;
     let editing = true;
+
+    function parseAutosaveStore(raw) {
+      try {
+        const parsed = JSON.parse(raw || '{}');
+        return parsed && typeof parsed === 'object' ? parsed : {};
+      } catch (error) {
+        return {};
+      }
+    }
+
+    function readAutosaveStore(storage) {
+      try {
+        return parseAutosaveStore(storage.getItem(autosaveStorageKey));
+      } catch (error) {
+        return {};
+      }
+    }
+
+    function writeAutosaveStore(storage, payload) {
+      try {
+        const store = readAutosaveStore(storage);
+        store[autosaveDocKey] = payload;
+        storage.setItem(autosaveStorageKey, JSON.stringify(store));
+      } catch (error) {
+      }
+    }
+
+    function persistAutosavePayload(payload) {
+      try {
+        if (window.parent && window.parent.localStorage) {
+          writeAutosaveStore(window.parent.localStorage, payload);
+        }
+      } catch (error) {
+      }
+      try {
+        writeAutosaveStore(window.localStorage, payload);
+      } catch (error) {
+      }
+    }
+
+    function getSavedDocPayload() {
+      const storages = [];
+      try {
+        if (window.parent && window.parent.localStorage) storages.push(window.parent.localStorage);
+      } catch (error) {
+      }
+      try {
+        storages.push(window.localStorage);
+      } catch (error) {
+      }
+      for (const storage of storages) {
+        const store = readAutosaveStore(storage);
+        if (store[autosaveDocKey]) return store[autosaveDocKey];
+      }
+      return '';
+    }
+
+    function computeHtmlFingerprint(value) {
+      let hash = 0;
+      const normalized = String(value || '');
+      for (let i = 0; i < normalized.length; i += 1) {
+        hash = ((hash << 5) - hash) + normalized.charCodeAt(i);
+        hash |= 0;
+      }
+      return String(hash);
+    }
 
     const toolbar = document.createElement('div');
     toolbar.id = 'floating-editor-toolbar';
@@ -2284,7 +2472,36 @@ HTML_BASE_FOOT = """
       clone.querySelectorAll('.live-edit-mode').forEach(function (node) {
         node.classList.remove('live-edit-mode');
       });
+      clone.querySelectorAll('.editable-node').forEach(function (node) {
+        node.classList.remove('editable-node');
+      });
       return '<!DOCTYPE html>\n' + clone.outerHTML;
+    }
+
+    function buildSyncPayload() {
+      const html = buildHtmlSnapshot();
+      return JSON.stringify({
+        html: html,
+        member_name: sheet.dataset.memberName || '',
+        template_type: sheet.dataset.templateType || '',
+        doc_key: autosaveDocKey,
+        html_fingerprint: computeHtmlFingerprint(html),
+        saved_at: new Date().toISOString()
+      });
+    }
+
+    function saveAutosavePayload() {
+      try {
+        const payload = buildSyncPayload();
+        persistAutosavePayload(payload);
+        status.textContent = '자동 저장됨';
+      } catch (error) {
+      }
+    }
+
+    function scheduleAutosave() {
+      clearTimeout(autosaveTimer);
+      autosaveTimer = setTimeout(saveAutosavePayload, 700);
     }
 
     function copyText(value) {
@@ -2318,9 +2535,10 @@ HTML_BASE_FOOT = """
           status.textContent = '앱 반영 실패';
           return;
         }
-        const html = buildHtmlSnapshot();
-        bridgeTextarea.value = html;
-        bridgeTextarea.textContent = html;
+        const payload = buildSyncPayload();
+        persistAutosavePayload(payload);
+        bridgeTextarea.value = payload;
+        bridgeTextarea.textContent = payload;
         bridgeTextarea.dispatchEvent(new Event('input', { bubbles: true }));
         bridgeTextarea.dispatchEvent(new Event('change', { bubbles: true }));
         status.textContent = '앱 반영 중';
@@ -2347,11 +2565,21 @@ HTML_BASE_FOOT = """
       if (!editing) return;
       document.execCommand(command, false, value || null);
       status.textContent = '서식 적용 완료';
+      scheduleAutosave();
     }
+
+    editableNodes.forEach(function (node) {
+      node.addEventListener('input', scheduleAutosave);
+      node.addEventListener('blur', saveAutosavePayload);
+    });
 
     hideBridgeWidgets();
     keepBridgeWidgetsHidden();
     setEditing(true);
+    if (getSavedDocPayload()) {
+      status.textContent = '자동 저장본 준비됨';
+    }
+    window.addEventListener('beforeunload', saveAutosavePayload);
 
     toolbar.addEventListener('mousedown', function (event) {
       event.preventDefault();
@@ -2389,7 +2617,7 @@ HTML_BASE_FOOT = """
 TEMPLATE_A = Template(
     HTML_BASE_HEAD
     + r"""
-<div class="sheet">
+<div class="sheet" data-template-type="{{ meta.template_type }}" data-member-name="{{ header.member_display_name }}" data-autosave-doc-key="{{ meta.autosave_doc_key }}">
   <div class="topbar">{{ header.title }}</div>
   <div class="trainer-line">{{ header.trainer_line }}</div>
   <div class="guide-line">{{ header.guide_text }}</div>
@@ -2517,7 +2745,7 @@ TEMPLATE_A = Template(
 TEMPLATE_B = Template(
     HTML_BASE_HEAD
     + r"""
-<div class="sheet">
+<div class="sheet" data-template-type="{{ meta.template_type }}" data-member-name="{{ header.member_display_name }}" data-autosave-doc-key="{{ meta.autosave_doc_key }}">
   <div class="topbar">{{ header.title }}</div>
   <div class="trainer-line">{{ header.trainer_line }}</div>
   <div class="guide-line">{{ header.guide_text }}</div>
@@ -2671,7 +2899,7 @@ TEMPLATE_B = Template(
 TEMPLATE_C = Template(
     HTML_BASE_HEAD
     + r"""
-<div class="sheet">
+<div class="sheet" data-template-type="{{ meta.template_type }}" data-member-name="{{ header.member_display_name }}" data-autosave-doc-key="{{ meta.autosave_doc_key }}">
   <div class="topbar">{{ header.title }}</div>
   <div class="trainer-line">{{ header.trainer_line }}</div>
   <div class="guide-line">{{ header.guide_text }}</div>
@@ -2830,19 +3058,194 @@ def html_to_pdf_bytes(html: str) -> Optional[bytes]:
 
 
 def refresh_rendered_report(report: Dict[str, Any]) -> None:
+    report = deepcopy(report)
+    meta = report.setdefault("meta", {})
+    header = report.get("header", {})
+    meta["autosave_doc_key"] = safe_text(meta.get("autosave_doc_key")) or build_autosave_doc_key(
+        header.get("member_display_name", ""),
+        meta.get("template_type", "A"),
+        meta.get("session_plan", ""),
+        meta.get("goal_focus", ""),
+    )
+    direction_rows = report.get("direction_section", {}).get("rows", []) if isinstance(report.get("direction_section", {}), dict) else []
+    if isinstance(report.get("direction_section", {}), dict) and isinstance(direction_rows, list):
+        report["direction_section"]["rows"] = nominalize_direction_rows(direction_rows)
     html = render_html(report)
+    html_fingerprint = compute_html_fingerprint(html)
     st.session_state["report_json"] = report
     st.session_state["report_html"] = html
     st.session_state["report_pdf"] = html_to_pdf_bytes(html)
+    st.session_state["report_html_synced"] = html
+    st.session_state["report_html_fingerprint"] = html_fingerprint
+    st.session_state["autosave_doc_key"] = meta["autosave_doc_key"]
+
+
+AUTOSAVE_STORAGE_KEY = "pt_sales_report_autosave_v4"
+
+
+def build_autosave_doc_key(member_name: str, template_type: str = "", session_plan: str = "", goal_focus: str = "") -> str:
+    raw_parts = [
+        normalize_name(re.sub(r"\s*회원님$", "", safe_text(member_name))),
+        safe_text(template_type).upper(),
+        safe_text(session_plan),
+        safe_text(goal_focus),
+    ]
+    cleaned_parts = [re.sub(r"[^0-9A-Za-z가-힣]+", "-", part).strip("-") for part in raw_parts if safe_text(part)]
+    return "__".join([part for part in cleaned_parts if part]) or "default"
+
+
+def compute_html_fingerprint(value: str) -> str:
+    text = safe_text(value)
+    if not text:
+        return ""
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
+
+
+def parse_html_sync_payload(raw_value: str) -> Dict[str, str]:
+    raw_text = safe_text(raw_value)
+    payload = {
+        "html": raw_text,
+        "member_name": "",
+        "template_type": "",
+        "doc_key": "",
+        "html_fingerprint": compute_html_fingerprint(raw_text),
+    }
+    if not raw_text:
+        return payload
+    try:
+        data = json.loads(raw_text)
+        if isinstance(data, dict) and safe_text(data.get("html")):
+            payload["html"] = safe_text(data.get("html"))
+            payload["member_name"] = normalize_name(re.sub(r"\s*회원님$", "", safe_text(data.get("member_name", ""))))
+            payload["template_type"] = safe_text(data.get("template_type", ""))
+            payload["doc_key"] = safe_text(data.get("doc_key", ""))
+            payload["html_fingerprint"] = safe_text(data.get("html_fingerprint", "")) or compute_html_fingerprint(payload["html"])
+    except Exception:
+        pass
+    return payload
 
 
 def refresh_rendered_html(edited_html: str) -> None:
-    html = safe_text(edited_html)
+    payload = parse_html_sync_payload(edited_html)
+    html = payload["html"]
     if not html:
         return
+    resolved_doc_key = payload["doc_key"] or build_autosave_doc_key(payload["member_name"], payload["template_type"])
+    resolved_fingerprint = payload["html_fingerprint"] or compute_html_fingerprint(html)
     st.session_state["report_html"] = html
     st.session_state["report_pdf"] = html_to_pdf_bytes(html)
     st.session_state["report_html_synced"] = html
+    st.session_state["report_html_fingerprint"] = resolved_fingerprint
+    st.session_state["autosave_doc_key"] = resolved_doc_key
+    if payload["template_type"] in ["A", "B", "C"]:
+        st.session_state["selected_template"] = payload["template_type"]
+    if payload["member_name"]:
+        st.session_state["member_name_saved"] = payload["member_name"]
+    current_report = st.session_state.get("report_json")
+    if isinstance(current_report, dict):
+        current_report.setdefault("meta", {})["autosave_doc_key"] = resolved_doc_key
+    if "report_json" not in st.session_state:
+        st.session_state["report_json"] = {
+            "notice": "자동저장된 WYSIWYG HTML에서 복원된 문서입니다.",
+            "html_only_restore": True,
+            "meta": {"autosave_doc_key": resolved_doc_key},
+        }
+
+
+def render_autosave_restore_bridge(storage_key: str, current_doc_key: str, current_html_fingerprint: str) -> str:
+    storage_key_json = json.dumps(storage_key)
+    current_doc_key_json = json.dumps(safe_text(current_doc_key))
+    current_html_fingerprint_json = json.dumps(safe_text(current_html_fingerprint))
+    return f"""
+    <script>
+    (function () {{
+      const storageKey = {storage_key_json};
+      const currentDocKey = {current_doc_key_json};
+      const currentHtmlFingerprint = {current_html_fingerprint_json};
+
+      function findParentButton(doc, text) {{
+        return Array.from(doc.querySelectorAll('button')).find(function (button) {{
+          return (button.innerText || '').trim() === text;
+        }});
+      }}
+
+      function parseStore(raw) {{
+        try {{
+          const parsed = JSON.parse(raw || '{{}}');
+          return parsed && typeof parsed === 'object' ? parsed : {{}};
+        }} catch (error) {{
+          return {{}};
+        }}
+      }}
+
+      function getSavedPayload() {{
+        const storages = [];
+        try {{
+          if (window.parent && window.parent.localStorage) storages.push(window.parent.localStorage);
+        }} catch (error) {{
+        }}
+        try {{
+          storages.push(window.localStorage);
+        }} catch (error) {{
+        }}
+        for (const storage of storages) {{
+          const store = parseStore(storage.getItem(storageKey));
+          if (currentDocKey && store[currentDocKey]) return store[currentDocKey];
+          if (!currentDocKey && store.default) return store.default;
+        }}
+        return '';
+      }}
+
+      function restoreSavedHtml() {{
+        try {{
+          const parentDoc = window.parent.document;
+          const restoreTextarea = parentDoc.querySelector('textarea[aria-label="자동저장 HTML 복원 버퍼"]');
+          const restoreButton = findParentButton(parentDoc, '자동저장 HTML 복원');
+
+          if (restoreTextarea) {{
+            const wrap = restoreTextarea.closest('[data-testid="stTextArea"]') || restoreTextarea.parentElement;
+            if (wrap) wrap.style.display = 'none';
+          }}
+          if (restoreButton) {{
+            const wrap = restoreButton.closest('[data-testid="stButton"]') || restoreButton.parentElement;
+            if (wrap) wrap.style.display = 'none';
+          }}
+
+          if (!restoreTextarea || !restoreButton) return;
+
+          const savedPayload = getSavedPayload();
+          if (!savedPayload) return;
+
+          let parsedPayload = null;
+          try {{
+            parsedPayload = JSON.parse(savedPayload);
+          }} catch (error) {{
+            return;
+          }}
+
+          if (!parsedPayload || !parsedPayload.html) return;
+          if (parsedPayload.doc_key && currentDocKey && parsedPayload.doc_key !== currentDocKey) return;
+          if (parsedPayload.html_fingerprint && currentHtmlFingerprint && parsedPayload.html_fingerprint === currentHtmlFingerprint) return;
+
+          restoreTextarea.value = savedPayload;
+          restoreTextarea.textContent = savedPayload;
+          restoreTextarea.dispatchEvent(new Event('input', {{ bubbles: true }}));
+          restoreTextarea.dispatchEvent(new Event('change', {{ bubbles: true }}));
+          setTimeout(function () {{
+            restoreButton.click();
+          }}, 120);
+        }} catch (error) {{
+        }}
+      }}
+
+      if (document.readyState === 'loading') {{
+        document.addEventListener('DOMContentLoaded', restoreSavedHtml);
+      }} else {{
+        restoreSavedHtml();
+      }}
+    }})();
+    </script>
+    """
 
 
 def direction_rows_to_editor_df(rows: List[Dict[str, str]]) -> pd.DataFrame:
@@ -2868,7 +3271,7 @@ def direction_editor_df_to_rows(df: pd.DataFrame, fallback_rows: List[Dict[str, 
             "v2": safe_text(row.get("2단계")) or fallback.get("v2", ""),
             "v3": safe_text(row.get("3단계")) or fallback.get("v3", ""),
         })
-    return output or fallback_rows
+    return nominalize_direction_rows(output or fallback_rows)
 
 
 # ============================================================
@@ -3145,6 +3548,14 @@ if generate_clicked:
         image_source = "placeholder"
 
     report["meta"]["template_type"] = selected_template
+    report["meta"]["session_plan"] = member.get("session_plan", "")
+    report["meta"]["goal_focus"] = member.get("goal_focus", "")
+    report["meta"]["autosave_doc_key"] = build_autosave_doc_key(
+        member.get("member_name", ""),
+        selected_template,
+        member.get("session_plan", ""),
+        member.get("goal_focus", ""),
+    )
     refresh_rendered_report(report)
     st.session_state["selected_template"] = selected_template
     st.session_state["member_name_saved"] = member["member_name"]
@@ -3154,6 +3565,23 @@ if generate_clicked:
     st.session_state["reference_image_data_list"] = report.get("reference_block", {}).get("image_data_list", [])
     st.session_state["reference_image_items"] = report.get("reference_block", {}).get("image_items", [])
     st.session_state["report_json_original"] = deepcopy(report)
+
+
+autosave_restore_buffer = st.text_area("자동저장 HTML 복원 버퍼", key="autosave_restore_buffer")
+autosave_restore_clicked = st.button("자동저장 HTML 복원", key="autosave_restore_apply")
+st.components.v1.html(
+    render_autosave_restore_bridge(
+        AUTOSAVE_STORAGE_KEY,
+        st.session_state.get("autosave_doc_key", ""),
+        st.session_state.get("report_html_fingerprint", ""),
+    ),
+    height=0,
+    scrolling=False,
+)
+if autosave_restore_clicked and safe_text(autosave_restore_buffer):
+    refresh_rendered_html(autosave_restore_buffer)
+    st.session_state["editor_notice"] = "자동저장된 편집본을 불러왔습니다."
+    st.rerun()
 
 
 # ============================================================
@@ -3215,10 +3643,10 @@ if st.session_state.get("report_html"):
             st.session_state["editor_notice"] = "창 안에서 수정한 내용을 다운로드 HTML/PDF에 반영했습니다."
             st.rerun()
 
-        st.caption("완성된 계획서 자체가 WYSIWYG 편집기로 열립니다. 문단, 표, 줄바꿈, 굵기까지 직접 수정한 뒤 '앱에 반영'을 누르면 HTML/PDF 다운로드에도 그대로 반영됩니다.")
+        st.caption("완성된 계획서 자체가 WYSIWYG 편집기로 열립니다. 편집 내용은 브라우저 자동저장(localStorage)로 문서별 저장되며, 새로고침 후에도 자동 복원됩니다. '앱에 반영'을 누르면 HTML/PDF 다운로드에도 그대로 반영됩니다.")
         st.components.v1.html(st.session_state["report_html"], height=1750, scrolling=True)
 
-        current_report = deepcopy(st.session_state["report_json"])
+        current_report = deepcopy(st.session_state.get("report_json", {}))
         with st.expander("정밀 수정(선택)", expanded=False):
             st.caption("기본은 계획서 본문 직접 수정입니다. 아래는 구조화된 수정이 필요할 때만 사용하세요.")
             with st.form("report_editor_form"):
@@ -3328,7 +3756,7 @@ if st.session_state.get("report_html"):
             st.warning("현재 환경에서는 WeasyPrint가 없어 PDF 다운로드가 비활성화되었습니다. requirements.txt 설치 후 사용할 수 있습니다.")
 
     with tabs[1]:
-        st.json(st.session_state["report_json"])
+        st.json(st.session_state.get("report_json", {"notice": "자동저장 HTML 복원본입니다. JSON은 원본 생성본이 없으면 제공되지 않습니다."}))
 
     with tabs[2]:
         st.code(st.session_state["report_html"], language="html")
