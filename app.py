@@ -419,6 +419,38 @@ input::placeholder {
   border-radius:18px !important;
 }
 
+/* ===== 데이터 에디터 밝은 테마 고정 ===== */
+[data-testid="stDataEditor"],
+[data-testid="stDataEditor"] * {
+  color:#102a43 !important;
+}
+[data-testid="stDataEditor"] [data-testid="stDataFrameResizable"],
+[data-testid="stDataEditor"] [data-testid="stDataFrame"],
+[data-testid="stDataEditor"] [role="grid"],
+[data-testid="stDataEditor"] .glideDataEditor,
+[data-testid="stDataEditor"] .glide-data-grid,
+[data-testid="stDataEditor"] canvas {
+  background:#ffffff !important;
+  color:#102a43 !important;
+}
+[data-testid="stDataEditor"] [data-testid="stToolbar"],
+[data-testid="stDataEditor"] [data-testid="stElementToolbar"] {
+  background:#ffffff !important;
+}
+[data-testid="stDataEditor"] button,
+[data-testid="stDataEditor"] button * {
+  color:#102a43 !important;
+  fill:#102a43 !important;
+  stroke:#102a43 !important;
+}
+[data-testid="stDataEditor"] input,
+[data-testid="stDataEditor"] textarea,
+[data-testid="stDataEditor"] [contenteditable="true"] {
+  background:#ffffff !important;
+  color:#102a43 !important;
+  -webkit-text-fill-color:#102a43 !important;
+}
+
 .loading-card {
   position:relative;
   overflow:hidden;
