@@ -3814,6 +3814,22 @@ if st.session_state.get("report_html"):
             st.caption("기본은 계획서 본문 직접 수정입니다. 아래는 구조화된 수정이 필요할 때만 사용하세요.")
             with st.form("report_editor_form"):
                 sales_focus_data = current_report.get("sales_focus", {})
+                extra_table_data = current_report.get("extra_table", {}) if isinstance(current_report.get("extra_table"), dict) else {}
+                extra_table_show = bool(extra_table_data.get("show"))
+                extra_table_headers = extra_table_data.get("headers", []) if isinstance(extra_table_data.get("headers", []), list) else []
+                if len(extra_table_headers) < 2:
+                    extra_table_headers = ["구분", "내용"]
+                extra_table_title_default = extra_table_data.get("title", "추가 가이드 표")
+                extra_table_rows = extra_table_data.get("rows", []) if isinstance(extra_table_data.get("rows", []), list) else []
+                extra_table_rows_normalized = []
+                for row in extra_table_rows:
+                    if isinstance(row, list):
+                        left = safe_text(row[0]) if len(row) > 0 else ""
+                        right = safe_text(row[1]) if len(row) > 1 else ""
+                        extra_table_rows_normalized.append([left, right])
+                if not extra_table_rows_normalized:
+                    extra_table_rows_normalized = [["", ""]]
+                extra_table_df = pd.DataFrame(extra_table_rows_normalized, columns=extra_table_headers[:2])
                 e1, e2 = st.columns(2)
                 with e1:
                     section_1_text = st.text_area(
@@ -3911,6 +3927,35 @@ if st.session_state.get("report_html"):
                     height=140,
                 )
 
+                if extra_table_show:
+                    st.markdown(f"#### {safe_text(extra_table_title_default) or '추가 가이드 표'} 수정")
+                    extra_title_text = st.text_input(
+                        "추가 표 제목",
+                        value=extra_table_title_default,
+                    )
+                    eh1, eh2 = st.columns(2)
+                    with eh1:
+                        extra_header_1_text = st.text_input(
+                            "왼쪽 열 제목",
+                            value=extra_table_headers[0],
+                        )
+                    with eh2:
+                        extra_header_2_text = st.text_input(
+                            "오른쪽 열 제목",
+                            value=extra_table_headers[1],
+                        )
+                    edited_extra_table_df = st.data_editor(
+                        extra_table_df,
+                        use_container_width=True,
+                        hide_index=True,
+                        num_rows="dynamic",
+                    )
+                else:
+                    extra_title_text = ""
+                    extra_header_1_text = "구분"
+                    extra_header_2_text = "내용"
+                    edited_extra_table_df = pd.DataFrame(columns=["구분", "내용"])
+
                 st.markdown("#### 단계별 로드맵 표 수정")
                 direction_df = direction_rows_to_editor_df(current_report.get("direction_section", {}).get("rows", []))
                 edited_direction_df = st.data_editor(
@@ -3953,6 +3998,26 @@ if st.session_state.get("report_html"):
                 edited_direction_df,
                 current_report.get("direction_section", {}).get("rows", []),
             )
+
+            current_extra_table = current_report.get("extra_table", {}) if isinstance(current_report.get("extra_table"), dict) else {}
+            extra_table_updated = updated_report.setdefault("extra_table", current_extra_table if isinstance(current_extra_table, dict) else {})
+            if extra_table_show or extra_table_updated.get("show"):
+                left_header = safe_text(extra_header_1_text) or (current_extra_table.get("headers", ["구분", "내용"])[0] if isinstance(current_extra_table.get("headers", []), list) and current_extra_table.get("headers") else "구분")
+                right_header = safe_text(extra_header_2_text) or (current_extra_table.get("headers", ["구분", "내용"])[1] if isinstance(current_extra_table.get("headers", []), list) and len(current_extra_table.get("headers", [])) > 1 else "내용")
+                extra_rows = []
+                if isinstance(edited_extra_table_df, pd.DataFrame):
+                    for _, row in edited_extra_table_df.iterrows():
+                        left_value = safe_text(row.get(edited_extra_table_df.columns[0], ""))
+                        right_value = safe_text(row.get(edited_extra_table_df.columns[1], "")) if len(edited_extra_table_df.columns) > 1 else ""
+                        if left_value or right_value:
+                            extra_rows.append([left_value, right_value])
+                if not extra_rows:
+                    extra_rows = current_extra_table.get("rows", []) if isinstance(current_extra_table.get("rows", []), list) else []
+                extra_table_updated["show"] = True
+                extra_table_updated["title"] = safe_text(extra_title_text) or current_extra_table.get("title", "추가 가이드 표")
+                extra_table_updated["headers"] = [left_header, right_header]
+                extra_table_updated["rows"] = extra_rows
+
             updated_report = tighten_report_text(updated_report)
             refresh_rendered_report(updated_report)
             st.session_state["editor_notice"] = "수정 내용을 반영했습니다."
